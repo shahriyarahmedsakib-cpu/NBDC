@@ -1060,3 +1060,918 @@
     const url = URL.createObjectURL(blob);
     document.getElementById('downloadLink').href = url;
 })();
+<div class="ticker-wrap" id="liveTickerWrap" style="display:none;">
+    <div class="ticker-content" id="liveTickerText">로드 হচ্ছে...</div>
+</div>
+
+<div id="publicView">
+    <header class="public-header">
+        <h1>নরসিংদী ব্লাড ডোনার ক্লাব</h1>
+        <p>“আপনার রক্তে বাঁচবে প্রাণ, স্বেচ্ছায় করুন রক্তদান।”</p>
+        <button class="admin-portal-btn" onclick="openLoginOverlay()">🔒 অ্যাডমিন প্যানেল</button>
+    </header>
+    <div class="container">
+        <div class="search-hero">
+            <h2>🔍 জরুরি রক্তের প্রয়োজন? এখনই খুঁজে নিন</h2>
+            <div class="search-grid" style="margin-bottom: 15px;">
+                <select id="publicBloodSearch">
+                    <option value="">রক্তের গ্রুপ...</option>
+                    <option value="A+">A+</option><option value="A-">A-</option>
+                    <option value="B+">B+</option><option value="B-">B-</option>
+                    <option value="O+">O+</option><option value="O-">O-</option>
+                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                </select>
+                <select id="publicAreaSearch">
+                    <option value="">উপজেলা/এলাকা...</option>
+                    <option value="নরসিংদী সদর">নরসিংদী সদর</option>
+                    <option value="শিবপুর">শিবপুর</option>
+                    <option value="রায়পুরা">রায়পুরা</option>
+                    <option value="বেলাবো">বেলাবো</option>
+                    <option value="মনোহরদী">মনোহরদী</option>
+                    <option value="পলাশ">পলাশ</option>
+                </select>
+                <button onclick="filterPublicDonors()">অনুসন্ধান</button>
+            </div>
+            <button class="request-trigger-btn" onclick="openRequestModal()">📥 জরুরি রক্তের আবেদন ফরম</button>
+        </div>
+        <div class="public-main-layout">
+            <div>
+                <div class="section-title"><span>👑 অনার বোর্ড: সাম্প্রতিক রক্তদানকারী বীরগণ</span></div>
+                <div class="donor-grid" id="publicHonorBoardContainer"></div>
+                <div class="section-title"><span>✅ রক্তদানে প্রস্তুত সদস্যবৃন্দ (ডোনার)</span></div>
+                <div class="donor-grid" id="publicDonorContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="adminView">
+    <div class="container">
+        <header class="admin-header">
+            <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 ডার্ক/লাইট মোড</button>
+            <h1 style="font-size: 24px;">🛠️ ক্লাবের মূল এডমিন ডাটাবেজ প্যানেল</h1>
+            <p>নিরাপদ ও সুসংগঠিত রক্তদাতা ব্যবস্থাপনা সিস্টেম</p>
+            <button class="admin-portal-btn" onclick="handleLogout()" style="background:var(--primary-color);">🚪 পাবলিক পেজে ফিরুন</button>
+        </header>
+        <div class="dashboard-counters">
+            <div class="counter-card text-center"><h3>মোট নিবন্ধিত সদস্য</h3><p id="totalMembers">০</p></div>
+            <div class="counter-card ready text-center" onclick="filterReadyDonorsFromDashboard()" title="ক্লিক করে প্রস্তুত ডোনারদের ফিল্টার করুন">
+                <h3>✅ রক্তদানে প্রস্তুত (ফিল্টার করুন 🔍)</h3>
+                <p id="readyMembers">০</p>
+            </div>
+            <div class="counter-card" style="border-top-color:#457b9d;"><h3>রক্তদান রেকর্ডস</h3><p id="totalDonations">০</p></div>
+            <div class="counter-card" style="border-top-color:var(--warning-color);"><h3>অপেক্ষমাণ ব্লাড রিকোয়েস্ট</h3><p id="pendingRequestsCounter">০</p></div>
+        </div>
+        <div class="tab-navigation">
+            <button class="tab-btn active" id="tabBtn-membership-tab" onclick="switchTab('membership-tab')">📝 মেম্বারশিপ নিবন্ধন</button>
+            <button class="tab-btn" id="tabBtn-donation-tab" onclick="switchTab('donation-tab')">🩸 নতুন রক্তদান এন্ট্রি</button>
+            <button class="tab-btn" id="tabBtn-member-list-tab" onclick="switchTab('member-list-tab')">👥 সদস্য তালিকা</button>
+            <button class="tab-btn" id="tabBtn-donation-list-tab" onclick="switchTab('donation-list-tab')">📜 রক্তদান ফাইল (Logs)</button>
+            <button class="tab-btn" id="tabBtn-request-list-tab" onclick="switchTab('request-list-tab')">
+                📥 ইনকামিং রিকোয়েস্টস <span class="notif-badge" id="reqNotifBadge" style="display:none;">0</span>
+            </button>
+        </div>
+
+        <div id="membership-tab" class="tab-content active">
+            <div class="panel-grid">
+                <div class="card">
+                    <h2>নতুন সদস্য নিবন্ধন ফরম</h2>
+                    <form id="membershipForm">
+                        <input type="hidden" id="editMemberInternalId"><input type="hidden" id="existingPhotoBase64">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>সদস্য আইডি:</label>
+                                <div class="id-input-container">
+                                    <input type="text" id="memberIdDisplay" readonly placeholder="NBDC001">
+                                    <button type="button" class="btn-inline-customize" onclick="enableIdCustomization()">⚙️</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>সদস্যের ধরন:</label>
+                                <select id="mType" onchange="togglePreviousDonationField()">
+                                    <option value="donor">রক্তদাতা (Donor)</option>
+                                    <option value="volunteer">সহযোগী সদস্য (Volunteer)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>সদস্যের নাম:</label><input type="text" id="mName" required></div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>জেন্ডার (লিঙ্গ):</label>
+                                <select id="mGender" required>
+                                    <option value="male">পুরুষ</option>
+                                    <option value="female">মহিলা</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>রক্তের গ্রুপ:</label>
+                                <select id="mBlood" required>
+                                    <option value="">নির্বাচন</option>
+                                    <option value="A+">A+</option><option value="A-">A-</option>
+                                    <option value="B+">B+</option><option value="B-">B-</option>
+                                    <option value="O+">O+</option><option value="O-">O-</option>
+                                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>ফোন নম্বর:</label><input type="tel" id="mPhone" required></div>
+                            <div class="form-group"><label>জরুরি/বিকল্প নম্বর:</label><input type="tel" id="mAltPhone"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>জন্মতারিখ:</label><input type="date" id="mDob"></div>
+                            <div class="form-group"><label>সংগঠনে যুক্ত হওয়ার তারিখ:</label><input type="date" id="mJoinDate"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>বর্তমান উপজেলা / এলাকা:</label>
+                                <select id="mArea" required>
+                                    <option value="">নির্বাচন</option>
+                                    <option value="নরসিংদী সদর">নরসিংদী সদর</option>
+                                    <option value="শিবপুর">শিবপুর</option>
+                                    <option value="রায়পুরা">রায়পুরা</option>
+                                    <option value="বেলাবো">বেলাবো</option>
+                                    <option value="মনোহরদী">মনোহরদী</option>
+                                    <option value="পলাশ">পলাশ</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>ফেসবুক প্রোফাইল লিঙ্ক:</label><input type="url" id="mFbLink" placeholder="https://facebook.com/..."></div>
+                        </div>
+                        <div class="form-group"><label>স্থায়ী ঠিকানা:</label><input type="text" id="mPermanentAddress" placeholder="গ্রাম, ইউনিয়ন, জেলা..."></div>
+                        <div class="form-group">
+                            <label>📸 সদস্যের ছবি যোগ করুন (JPEG/PNG):</label>
+                            <input type="file" accept="image/*" onchange="previewMemberImage(this)">
+                            <div class="image-preview-box" id="photoPreviewContainer">👤</div>
+                        </div>
+                        <div class="form-group" id="prevDonationGroup"><label>পূর্বে কতবার রক্ত দিয়েছেন?:</label><input type="number" id="mPrevCount" min="0" value="0"></div>
+                        <button type="submit" id="memberSubmitBtn" style="background:var(--primary-color); color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">সদস্য নিশ্চিত করুন</button>
+                    </form>
+                </div>
+                <div class="card" style="background: var(--card-bg); border: 2px dashed var(--border-color); text-align: center; color: #6c757d; padding: 35px;">
+                    <h3>💡 ডাটাবেজ অপশন</h3>
+                    <p style="font-size: 13px; margin: 10px 0 30px 0;">সম্পূর্ণ ডাটা ক্লাউড ও ব্যাকআপ ফরম্যাটে নিচে ডাউনলোডের সুবিধা দেওয়া হলো।</p>
+                    <div class="backup-container">
+                        <button class="btn-backup" onclick="exportToJSON()">📥 ব্যাকআপ ডাউনলোড</button>
+                        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 রিস্টোর করুন</button>
+                        <input type="file" id="importFile" style="display:none" onchange="importFromJSON(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="donation-tab" class="tab-content">
+            <div class="card" style="max-width: 600px;">
+                <h2>রক্তদান রেকর্ড ফরম</h2>
+                <form id="donationForm">
+                    <div class="form-group">
+                        <label>🔍 সদস্য খুঁজুন:</label>
+                        <input type="text" id="searchDonorInput" autocomplete="off" placeholder="উদা: NBDC001 বা ফোন নম্বর...">
+                        <div id="donorSuggestions" class="suggestions-list"></div>
+                    </div>
+                    <div id="selectedDonorPreview" style="display:none; background:#e8f5e9; padding:15px; border-radius:6px; margin-bottom:15px; font-size:13px; border-left:4px solid var(--success-color); color: #333;">
+                        <input type="hidden" id="selectedDonorId">
+                        <strong>নির্বাচিত সদস্য:</strong> <span id="previewName"></span> | <strong>আইডি:</strong> <span id="previewId"></span>
+                    </div>
+                    <div class="form-group"><label>রক্তদানের তারিখ:</label><input type="date" id="dDate" required></div>
+                    <div class="form-group"><label>হাসপাতাল / স্থান:</label><input type="text" id="dHospital" required></div>
+                    <button type="submit" style="background:var(--primary-color); color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">রক্তদান রেকর্ড সম্পন্ন করুন</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="member-list-tab" class="tab-content">
+            <div class="card">
+                <h2>নিবন্ধিত সদস্য তালিকা (মাস্টার ফাইল)</h2>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin-bottom:20px; background:var(--bg-color); border:1px solid var(--border-color); padding:15px; border-radius:8px;">
+                    <div><label>🔍 নাম বা ফোন নম্বর:</label><input type="text" id="memberSearch" placeholder="টাইপ করুন..." oninput="displayMembers()"></div>
+                    <div><label>📍 এলাকা ফিল্টার:</label>
+                        <select id="adminAreaFilter" onchange="displayMembers()">
+                            <option value="">সব এলাকা</option>
+                            <option value="নরসিংদী সদর">নরসিংদী সদর</option><option value="শিবপুর">শিবপুর</option><option value="রায়পুরা">রায়পুরা</option><option value="বেলাবো">বেলাবো</option><option value="মনোহরদী">মনোহরদী</option><option value="পলাশ">পলাশ</option>
+                        </select>
+                    </div>
+                    <div><label>🩸 রক্তের গ্রুপ ফিল্টার:</label>
+                        <select id="bloodFilter" onchange="displayMembers()">
+                            <option value="">সব গ্রুপ</option>
+                            <option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div><label>⚡ স্ট্যাটাস ফিল্টার:</label>
+                        <select id="statusFilter" onchange="displayMembers()">
+                            <option value="">সব সদস্য</option>
+                            <option value="ready">✅ শুধুমাত্র প্রস্তুত ডোনার</option>
+                            <option value="not_ready">⏳ রক্তদানের সময় হয়নি</option>
+                            <option value="volunteer">👥 সহযোগী ভলান্টিয়ার</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>ছবি ও নাম</th><th>সদস্য আইডি</th><th>এলাকা</th><th>টাইপ</th><th>রক্তের গ্রুপ</th><th>যোগাযোগ</th><th>সর্বমোট দান</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr>
+                        </thead>
+                        <tbody id="memberTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="donation-list-tab" class="tab-content">
+            <div class="card">
+                <h2>রক্তদান ফাইল (Donation Logs)</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>তারিখ</th><th>সদস্য আইডি</th><th>রক্তদাতার নাম</th><th>রক্তের গ্রুপ</th><th>হাসপাতাল / স্থান</th><th>অ্যাকশন</th></tr>
+                        </thead>
+                        <tbody id="donationTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="request-list-tab" class="tab-content">
+            <div class="card">
+                <h2>📥 পাবলিক ব্লাড রিকোয়েস্ট প্যানেল (মাস্টার ডাটা)</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr><th>আবেদনের তারিখ</th><th>রোগীর নাম</th><th>গ্রুপ ও ব্যাগ</th><th>হাসপাতাল ও স্থান</th><th>যোগাযোগ</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr>
+                        </thead>
+                        <tbody id="requestTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <span class="close-login" onclick="closeLoginOverlay()">&times;</span>
+        <h2>🔒 অ্যাডমিন লগইন</h2>
+        <input type="text" id="loginUser" placeholder="ইউজারনেম (admin)" style="margin-top: 15px;" onkeypress="handleEnterLogin(event)">
+        <input type="password" id="loginPass" placeholder="পাসওয়ার্ড (nbdc2026)" onkeypress="handleEnterLogin(event)">
+        <button onclick="checkLogin()">প্রবেশ করুন</button>
+        <div id="loginError" class="login-error">⚠️ ভুল তথ্য!</div>
+    </div>
+</div>
+
+<div id="publicRequestModal" class="modal">
+    <div class="modal-content" style="max-width: 550px; text-align: left;">
+        <span class="close-modal" onclick="closeModal('publicRequestModal')">&times;</span>
+        <h2 style="margin-bottom: 15px; border-bottom: 3px solid var(--primary-color);">📥 জরুরি রক্তের আবেদন ফরম</h2>
+        <form id="publicRequestForm">
+            <div class="form-group"><label>রোগীর নাম:</label><input type="text" id="reqPatient" required></div>
+            <div class="form-group">
+                <label>প্রয়োজনীয় রক্তের গ্রুপ:</label>
+                <select id="reqBlood" required>
+                    <option value="">নির্বাচন করুন</option>
+                    <option value="A+">A+</option><option value="A-">A-</option>
+                    <option value="B+">B+</option><option value="B-">B-</option>
+                    <option value="O+">O+</option><option value="O-">O-</option>
+                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                </select>
+            </div>
+            <div class="form-group"><label>কত ব্যাগ রক্ত প্রয়োজন?:</label><input type="number" id="reqBags" min="1" value="1" required></div>
+            <div class="form-group"><label>হাসপাতাল ও স্থান:</label><input type="text" id="reqHospital" required></div>
+            <div class="form-group"><label>যোগাযোগের ফোন নম্বর:</label><input type="tel" id="reqPhone" placeholder="017xxxxxxxx" required></div>
+            <button type="submit" style="background:var(--primary-color); color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; width:100%; font-size:16px;">আবেদন সাবমিট করুন</button>
+        </form>
+    </div>
+</div>
+
+<div id="profileViewModal" class="modal">
+    <div class="modal-content" style="max-width: 650px;">
+        <span class="close-modal" onclick="closeModal('profileViewModal')">&times;</span>
+        <h2 id="profModalTitle" style="margin-bottom:20px;">👤 বিস্তারিত সদস্য প্রোফাইল</h2>
+        <div class="profile-modal-grid">
+            <div>
+                <div id="profModalAvatarContainer"></div>
+                <div id="profModalBloodBadge" style="text-align:center; margin-top:10px;"></div>
+            </div>
+            <div>
+                <div class="profile-info-details">
+                    <div class="profile-info-item"><strong>আইডি:</strong> <span id="profId"></span></div>
+                    <div class="profile-info-item"><strong>নাম:</strong> <span id="profName"></span></div>
+                    <div class="profile-info-item"><strong>মোবাইল:</strong> <span id="profPhone"></span></div>
+                    <div class="profile-info-item"><strong>জরুরি মোবাইল:</strong> <span id="profAltPhone">-</span></div>
+                    <div class="profile-info-item"><strong>জন্মতারিখ:</strong> <span id="profDob">-</span></div>
+                    <div class="profile-info-item"><strong>যোগদানের তারিখ:</strong> <span id="profJoinDate">-</span></div>
+                    <div class="profile-info-item"><strong>বর্তমান এলাকা:</strong> <span id="profArea"></span></div>
+                    <div class="profile-info-item"><strong>ফেসবুক:</strong> <span id="profFb">-</span></div>
+                    <div class="profile-info-item" style="grid-column: 1/-1;"><strong>স্থায়ী ঠিকানা:</strong> <span id="profPermAddress">-</span></div>
+                </div>
+            </div>
+        </div>
+        <h3 style="text-align:left; font-size:15px; margin-top:20px; border-bottom:2px solid var(--border-color); padding-bottom:5px;">🩸 ক্লাবে রক্তদানের ইতিহাস (Donation Logs)</h3>
+        <div class="profile-history-box" id="profHistoryContainer"></div>
+    </div>
+</div>
+
+<div id="certModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('certModal')">&times;</span>
+        <h2>📜 সম্মাননা স্মারক</h2>
+        <div id="certificate-frame">
+            <div class="cert-org-name">নরসিংদী ব্লাড ডোনার ক্লাব</div>
+            <div class="cert-title">রক্তদাতা সম্মাননা স্মারক</div>
+            <div class="cert-text">অত্যಂತ আনন্দের সাথে স্বীকৃতি দেওয়া যাচ্ছে যে,<br><span class="cert-name" id="certDonorName">---</span><br>মানবতার সেবায় স্বেচ্ছায় রক্তদান করে জীবন বাঁচাতে অনন্য ভূমিকা রেখেছেন। রক্তের গ্রুপ <strong id="certBloodGroup">[O+]</strong>, তারিখ <span id="certDate">--/--/----</span>।</div>
+            <div class="cert-footer"><div>নরসিংদী ব্লাড ডোনার ক্লাব</div><div>পরিচালক / সভাপতি</div></div>
+        </div>
+        <button onclick="downloadCertificate()" style="background: #2a9d8f; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">📥 ডাউনলোড করুন</button>
+    </div>
+</div>
+
+<div id="thankYouModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-modal" onclick="closeModal('thankYouModal')">&times;</span>
+        <h2 style="color: var(--success-color);">❤️ রক্তদাতাকে অভিনন্দন!</h2>
+        <div class="thankyou-box" id="thankYouMsgText"></div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="copyThankYouMessage()" style="background: #4a5568; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1;">📋 কপি মেসেজ</button>
+            <a id="wpMessageBtn" href="#" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 12px; border-radius: 6px; font-weight: bold; text-align: center; flex: 1;">💬 হোয়াটসঅ্যাপ</a>
+        </div>
+    </div>
+</div>
+<script>
+    let members = JSON.parse(localStorage.getItem('relationalMembers')) || [];
+    let donations = JSON.parse(localStorage.getItem('relationalDonations')) || [];
+    let bloodRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
+    let nextIdSequence = JSON.parse(localStorage.getItem('relationalIdSequence')) || 1;
+
+    function saveToLocalStorage() {
+        localStorage.setItem('relationalMembers', JSON.stringify(members));
+        localStorage.setItem('relationalDonations', JSON.stringify(donations));
+        localStorage.setItem('bloodRequests', JSON.stringify(bloodRequests));
+        localStorage.setItem('relationalIdSequence', JSON.stringify(nextIdSequence));
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('adminTheme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
+
+    function playBeepSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(); const gain = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.5, ctx.currentTime);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+    }
+
+    function checkCurrentSession() {
+        const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+        const currentTab = sessionStorage.getItem('adminActiveTab') || 'membership-tab';
+        
+        if (isLoggedIn) {
+            document.getElementById('publicView').style.display = 'none';
+            document.getElementById('adminView').style.display = 'block';
+            switchTab(currentTab);
+            displayMembers(); 
+            displayDonations(); 
+            displayBloodRequests();
+        } else {
+            document.getElementById('adminView').style.display = 'none';
+            document.getElementById('publicView').style.display = 'block';
+            renderPublicPage();
+        }
+    }
+
+    function openLoginOverlay() { 
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex'; 
+        setTimeout(() => document.getElementById('loginUser').focus(), 100);
+    }
+    
+    function closeLoginOverlay() { document.getElementById('loginOverlay').style.display = 'none'; }
+
+    function handleEnterLogin(event) {
+        if (event.key === "Enter") { event.preventDefault(); checkLogin(); }
+    }
+
+    function checkLogin() {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPass').value.trim();
+        
+        if (user === "admin" && pass === "nbdc2026") {
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            if(!sessionStorage.getItem('adminActiveTab')) sessionStorage.setItem('adminActiveTab', 'membership-tab');
+            closeLoginOverlay();
+            checkCurrentSession();
+        } else { 
+            document.getElementById('loginError').style.display = 'block'; 
+        }
+    }
+
+    function handleLogout() {
+        sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('adminActiveTab');
+        checkCurrentSession();
+    }
+
+    function convertBengaliToEnglishNumbers(str) {
+        if(!str) return '';
+        const b = {'০':'0','১':'1','২':'2','৩':'3','৪':'4','৫':'5','৬':'6','৭':'7','৮':'8','৯':'9'};
+        return str.replace(/[০-৯]/g, m => b[m]);
+    }
+
+    window.openRequestModal = function() { document.getElementById('publicRequestModal').style.display = 'flex'; }
+
+    document.getElementById('publicRequestForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const patientName = document.getElementById('reqPatient').value.trim();
+        const bloodGroup = document.getElementById('reqBlood').value;
+        const bags = document.getElementById('reqBags').value;
+        const hospital = document.getElementById('reqHospital').value.trim();
+        const phone = convertBengaliToEnglishNumbers(document.getElementById('reqPhone').value.trim());
+        const date = new Date().toLocaleDateString('bn-BD');
+        const requestId = Date.now().toString();
+
+        bloodRequests.unshift({ id: requestId, date, patientName, bloodGroup, bags, hospital, phone, status: 'pending' });
+
+        let myRequests = JSON.parse(localStorage.getItem('mySubmittedRequests')) || [];
+        myRequests.push(requestId);
+        localStorage.setItem('mySubmittedRequests', JSON.stringify(myRequests));
+
+        saveToLocalStorage();
+        playBeepSound();
+        closeModal('publicRequestModal');
+        alert('আপনার রক্তের আবেদনটি সফলভাবে সিস্টেমে যুক্ত হয়েছে!');
+        document.getElementById('publicRequestForm').reset();
+        updateLiveTicker();
+    });
+
+    function updateLiveTicker() {
+        const tickerWrap = document.getElementById('liveTickerWrap');
+        const tickerText = document.getElementById('liveTickerText');
+        if(!tickerWrap || !tickerText) return;
+
+        let visibleRequests = [];
+        const isAdmin = sessionStorage.getItem('adminLoggedIn') === 'true';
+
+        if (isAdmin) {
+            visibleRequests = bloodRequests.filter(r => r.status === 'pending');
+        } else {
+            const myRequests = JSON.parse(localStorage.getItem('mySubmittedRequests')) || [];
+            visibleRequests = bloodRequests.filter(r => r.status === 'pending' && myRequests.includes(r.id));
+        }
+        
+        if(visibleRequests.length === 0) {
+            tickerWrap.style.display = 'none';
+        } else {
+            tickerWrap.style.display = 'block';
+            let msg = "🚨 জরুরি ব্লাড নোটিশ: ";
+            visibleRequests.forEach(r => {
+                msg += ` [রোগীর নাম: ${r.patientName}, রক্তের গ্রুপ: ${r.bloodGroup} (${r.bags} ব্যাগ), স্থান: ${r.hospital}, যোগাযোগ: ${r.phone}]  •  `;
+            });
+            tickerText.innerText = msg;
+        }
+    }
+
+    function updateRequestBadges() {
+        const pendingCount = bloodRequests.filter(r => r.status === 'pending').length;
+        const counterEl = document.getElementById('pendingRequestsCounter');
+        if(counterEl) counterEl.innerText = pendingCount;
+        
+        const badge = document.getElementById('reqNotifBadge');
+        if(badge) {
+            if(pendingCount > 0) { badge.innerText = pendingCount; badge.style.display = 'inline-block'; } 
+            else { badge.style.display = 'none'; }
+        }
+    }
+
+    function displayBloodRequests() {
+        const tbody = document.getElementById('requestTableBody'); if(!tbody) return; tbody.innerHTML = '';
+        const visibleRequests = bloodRequests.filter(r => r.status !== 'archived');
+        
+        visibleRequests.forEach(r => {
+            const row = document.createElement('tr');
+            row.style.background = r.status === 'resolved' ? 'rgba(0,0,0,0.02)' : 'rgba(230, 57, 70, 0.05)';
+            row.innerHTML = `
+                <td>\${r.date}</td>
+                <td><strong>\${r.patientName}</strong></td>
+                <td><span class="badge" style="background:\${r.status==='resolved'?'#6c757d':'var(--primary-color)'}">\${r.bloodGroup}</span> (<b>\${r.bags} ব্যাগ</b>)</td>
+                <td>\${r.hospital}</td>
+                <td>
+                    <a href="tel:\${r.phone}" class="btn-comm btn-phone">📞 কল</a>
+                    <a href="https://wa.me/88\${r.phone}" target="_blank" class="btn-comm btn-wa">💬 WA</a>
+                </td>
+                <td><span class="badge" style="background:\${r.status==='resolved'?'var(--success-color)':'var(--warning-color)'}">\${r.status==='resolved'?'সমাধানকৃত':'অপেক্ষমাণ'}</span></td>
+                <td>
+                    <div class="action-dropdown">
+                        <button class="dropdown-btn" onclick="toggleDropdown(event, '\${r.id}')">অ্যাকশন ▾</button>
+                        <div id="dropdown-\${r.id}" class="dropdown-content">
+                            \${r.status==='pending'?\`<a href="#" onclick="resolveRequest('\${r.id}')">✅ Resolve করুন</a>\`:''}
+                            <a href="#" onclick="archiveRequest('\${r.id}')" style="color:red;">❌ মুছে ফেলুন</a>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        updateRequestBadges();
+        updateLiveTicker();
+    }
+
+    window.resolveRequest = function(id) {
+        const idx = bloodRequests.findIndex(r => r.id === id);
+        if(idx !== -1) { bloodRequests[idx].status = 'resolved'; saveToLocalStorage(); displayBloodRequests(); }
+    }
+
+    window.archiveRequest = function(id) {
+        if(confirm("আপনি কি নিশ্চিত যে এই রিকোয়েস্টটি ডিলিট করতে চান?")) {
+            const idx = bloodRequests.findIndex(r => r.id === id);
+            if(idx !== -1) { bloodRequests[idx].status = 'archived'; saveToLocalStorage(); displayBloodRequests(); }
+        }
+    }
+
+    function getLatestDonationDate(memberId) {
+        const logs = donations.filter(d => d.memberId === memberId);
+        return logs.length > 0 ? logs[0].date : null;
+    }
+
+    function calculateRemainingDays(lastDateStr) {
+        if(!lastDateStr) return -999;
+        return 90 - Math.floor((new Date() - new Date(lastDateStr)) / (1000 * 60 * 60 * 24));
+    }
+
+    function renderPublicPage(filterBlood = "", filterArea = "") {
+        const donorContainer = document.getElementById('publicDonorContainer');
+        const honorBoardContainer = document.getElementById('publicHonorBoardContainer');
+        if(!donorContainer || !honorBoardContainer) return;
+        
+        donorContainer.innerHTML = ''; honorBoardContainer.innerHTML = '';
+        const dummyPhoto = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+        const recentDonations = [...donations].slice(0, 8);
+        if(recentDonations.length === 0) {
+            honorBoardContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding:15px; color:#888;">এখনো কোনো রেকর্ড নেই।</p>`;
+        } else {
+            recentDonations.forEach(d => {
+                const m = members.find(mem => mem.memberId === d.memberId);
+                if(m) {
+                    honorBoardContainer.innerHTML += `
+                        <div class="donor-card">
+                            <img src="\${m.photo || dummyPhoto}" class="donor-avatar">
+                            <div class="donor-name">\${m.name}</div>
+                            <span class="donor-blood-badge" style="background:var(--secondary-color);">\${m.bloodGroup}</span>
+                            <div class="donor-meta" style="color:var(--primary-color); font-weight:bold;">📍 স্থান: \${d.hospital}</div>
+                            <div class="donor-meta">তারিখ: \${d.date}</div>
+                        </div>`;
+                }
+            });
+        }
+
+        const readyDonors = members.filter(m => {
+            if(m.type === 'volunteer') return false;
+            const remaining = calculateRemainingDays(getLatestDonationDate(m.memberId));
+            return remaining <= 0 && (!filterBlood || m.bloodGroup === filterBlood) && (!filterArea || m.area === filterArea);
+        });
+
+        if(readyDonors.length === 0) {
+            donorContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding:20px; color:#888;">কোনো প্রস্তুত রক্তদাতা পাওয়া যায়নি।</p>`;
+        } else {
+            readyDonors.forEach(m => {
+                const totalCount = (m.prevCount || 0) + donations.filter(d => d.memberId === m.memberId).length;
+                donorContainer.innerHTML += `
+                    <div class="donor-card">
+                        <img src="\${m.photo || dummyPhoto}" class="donor-avatar">
+                        <div class="donor-name">\${m.name}</div>
+                        <span class="donor-blood-badge">\${m.bloodGroup}</span>
+                        <div class="donor-meta">📍 এলাকা: <strong>\${m.area || 'নরসিংদী'}</strong></div>
+                        <div class="donor-meta">সর্বমোট দান: <strong>\${totalCount} বার</strong></div>
+                        <div class="communication-btns" style="justify-content:center;">
+                            <a href="tel:\${m.phone}" class="btn-comm btn-phone" style="padding: 7px 15px;">📞 কল দিন</a>
+                            <a href="https://wa.me/88\${m.phone}" target="_blank" class="btn-comm btn-wa" style="padding: 7px 15px;">💬 মেসেজ</a>
+                        </div>
+                    </div>`;
+            });
+        }
+        updateLiveTicker();
+    }
+
+    function filterPublicDonors() { 
+        renderPublicPage(document.getElementById('publicBloodSearch').value, document.getElementById('publicAreaSearch').value); 
+    }
+
+    window.filterReadyDonorsFromDashboard = function() {
+        switchTab('member-list-tab');
+        document.getElementById('statusFilter').value = 'ready';
+        displayMembers();
+    }
+
+    function previewMemberImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreviewContainer').innerHTML = `<img src="\${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                document.getElementById('existingPhotoBase64').value = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function generateMemberId() { return `NBDC\${String(nextIdSequence).padStart(3, '0')}`; }
+
+    window.switchTab = function(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        const activeBtn = document.getElementById(`tabBtn-\${tabId}`);
+        if(activeBtn) activeBtn.classList.add('active');
+        
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            sessionStorage.setItem('adminActiveTab', tabId);
+        }
+    }
+
+    window.enableIdCustomization = function() { document.getElementById('memberIdDisplay').readOnly = false; document.getElementById('memberIdDisplay').focus(); }
+    function togglePreviousDonationField() { document.getElementById('prevDonationGroup').style.display = document.getElementById('mType').value === 'volunteer' ? 'none' : 'block'; }
+
+    document.getElementById('membershipForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const internalId = document.getElementById('editMemberInternalId').value;
+        const type = document.getElementById('mType').value;
+        const name = document.getElementById('mName').value;
+        const gender = document.getElementById('mGender').value;
+        const area = document.getElementById('mArea').value;
+        const blood = document.getElementById('mBlood').value;
+        const phone = convertBengaliToEnglishNumbers(document.getElementById('mPhone').value.trim());
+        
+        const altPhone = convertBengaliToEnglishNumbers(document.getElementById('mAltPhone').value.trim());
+        const dob = document.getElementById('mDob').value;
+        const joinDate = document.getElementById('mJoinDate').value;
+        const fbLink = document.getElementById('mFbLink').value.trim();
+        const permanentAddress = document.getElementById('mPermanentAddress').value.trim();
+
+        const prevCount = parseInt(document.getElementById('mPrevCount').value) || 0;
+        const photoData = document.getElementById('existingPhotoBase64').value;
+
+        if(internalId) {
+            const idx = members.findIndex(m => m.id === internalId);
+            if(idx !== -1) { 
+                members[idx].type = type;
+                members[idx].name = name; 
+                members[idx].gender = gender;
+                members[idx].area = area; 
+                members[idx].bloodGroup = blood; 
+                members[idx].phone = phone; 
+                members[idx].altPhone = altPhone;
+                members[idx].dob = dob;
+                members[idx].joinDate = joinDate;
+                members[idx].fbLink = fbLink;
+                members[idx].permanentAddress = permanentAddress;
+                members[idx].photo = photoData; 
+                if(type !== 'volunteer') members[idx].prevCount = prevCount; 
+            }
+        } else {
+            let customId = document.getElementById('memberIdDisplay').value.trim().toUpperCase() || generateMemberId();
+            if(members.some(m => m.memberId === customId)) { alert("আইডিটি অলরেডি আছে!"); return; }
+            members.push({ 
+                id: Date.now().toString(), memberId: customId, type, name, gender, area, bloodGroup: blood, phone, 
+                altPhone, dob, joinDate, fbLink, permanentAddress,
+                photo: photoData, prevCount: type==='volunteer'?0:prevCount 
+            });
+            nextIdSequence++;
+        }
+        saveToLocalStorage(); resetMemberForm(); switchTab('member-list-tab'); displayMembers();
+    });
+
+    function resetMemberForm() {
+        document.getElementById('membershipForm').reset();
+        document.getElementById('editMemberInternalId').value = ''; document.getElementById('existingPhotoBase64').value = '';
+        document.getElementById('photoPreviewContainer').innerHTML = `👤`;
+        document.getElementById('memberIdDisplay').value = generateMemberId(); document.getElementById('memberIdDisplay').readOnly = true;
+        document.getElementById('memberSubmitBtn').innerText = "সদস্য নিশ্চিত করুন";
+    }
+
+    function displayMembers() {
+        const tbody = document.getElementById('memberTableBody'); if(!tbody) return; tbody.innerHTML = '';
+        let readyCount = 0;
+        const dummyPhoto = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+        const searchQuery = convertBengaliToEnglishNumbers(document.getElementById('memberSearch').value.trim().toLowerCase());
+        const areaFilter = document.getElementById('adminAreaFilter').value;
+        const bloodFilter = document.getElementById('bloodFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        members.forEach(m => {
+            const remaining = calculateRemainingDays(getLatestDonationDate(m.memberId));
+            if(m.type !== 'volunteer' && remaining <= 0) readyCount++;
+            const appCount = donations.filter(d => d.memberId === m.memberId).length;
+            
+            const matchesSearch = !searchQuery || m.name.toLowerCase().includes(searchQuery) || m.phone.includes(searchQuery);
+            const matchesArea = !areaFilter || m.area === areaFilter;
+            const matchesBlood = !bloodFilter || m.bloodGroup === bloodFilter;
+            
+            let matchesStatus = true;
+            if (statusFilter === 'ready') matchesStatus = (m.type !== 'volunteer' && remaining <= 0);
+            else if (statusFilter === 'not_ready') matchesStatus = (m.type !== 'volunteer' && remaining > 0);
+            else if (statusFilter === 'volunteer') matchesStatus = (m.type === 'volunteer');
+
+            if (matchesSearch && matchesArea && matchesBlood && matchesStatus) {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><div style="display:flex; align-items:center;"><img src="\${m.photo || dummyPhoto}" class="table-avatar"><strong>\${m.name}</strong></div></td>
+                        <td><span class="badge id-badge">\${m.memberId}</span></td>
+                        <td><b>\${m.area || '-'}</b></td>
+                        <td>\${m.type === 'volunteer' ? 'সহযোগী' : 'রক্তদাতা'}</td>
+                        <td><span class="badge">\${m.bloodGroup}</span></td>
+                        <td><a href="tel:\${m.phone}" class="btn-comm btn-phone">📞 কল</a></td>
+                        <td><strong>\${(m.prevCount || 0) + appCount} বার</strong></td>
+                        <td>\${m.type === 'volunteer' ? 'ভলান্টিয়ার' : (remaining > 0 ? \`⏳ \${remaining} দিন\` : '✅ প্রস্তুত')}</td>
+                        <td>
+                            <div class="action-dropdown">
+                                <button class="dropdown-btn" onclick="toggleDropdown(event, '\${m.id}')">অ্যাকশন ▾</button>
+                                <div id="dropdown-\${m.id}" class="dropdown-content">
+                                    <a href="#" onclick="openProfileModal('\${m.id}')">👁️ প্রোফাইল দেখুন</a>
+                                    <a href="#" onclick="initiateMemberEdit('\${m.id}')">✏️ এডিট</a>
+                                    <a href="#" onclick="deleteMember('\${m.id}')" style="color:red;">❌ ডিলিট</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+            }
+        });
+        
+        if(document.getElementById('totalMembers')) document.getElementById('totalMembers').innerText = members.length;
+        if(document.getElementById('readyMembers')) document.getElementById('readyMembers').innerText = readyCount;
+        if(document.getElementById('totalDonations')) document.getElementById('totalDonations').innerText = donations.length;
+        
+        updateRequestBadges();
+    }
+
+    window.openProfileModal = function(id) {
+        const m = members.find(mem => mem.id === id); if(!m) return;
+        const dummyPhoto = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+        
+        document.getElementById('profId').innerText = m.memberId;
+        document.getElementById('profName').innerText = m.name;
+        document.getElementById('profPhone').innerText = m.phone;
+        document.getElementById('profAltPhone').innerText = m.altPhone || 'নাই';
+        document.getElementById('profDob').innerText = m.dob || 'উল্লেখ নেই';
+        document.getElementById('profJoinDate').innerText = m.joinDate || 'উল্লেখ নেই';
+        document.getElementById('profArea').innerText = m.area;
+        document.getElementById('profPermAddress').innerText = m.permanentAddress || 'উল্লেখ নেই';
+        
+        if(m.fbLink) {
+            document.getElementById('profFb').innerHTML = `<a href="\${m.fbLink}" target="_blank" style="color:var(--primary-color); font-weight:bold; text-decoration:none;">🔗 ফেসবুক লিংক</a>`;
+        } else {
+            document.getElementById('profFb').innerText = 'নাই';
+        }
+
+        document.getElementById('profModalAvatarContainer').innerHTML = `<img src="\${m.photo || dummyPhoto}" class="profile-modal-avatar">`;
+        document.getElementById('profModalBloodBadge').innerHTML = `<span class="donor-blood-badge">\${m.bloodGroup}</span>`;
+
+        const histBox = document.getElementById('profHistoryContainer'); histBox.innerHTML = '';
+        const historyLogs = donations.filter(d => d.memberId === m.memberId);
+        
+        if(m.prevCount && m.prevCount > 0) {
+            histBox.innerHTML += `<div class="profile-history-item" style="color:var(--success-color);"><span>🏁 ক্লাবে যুক্ত হওয়ার পূর্বের রক্তদান</span> <strong>\${m.prevCount} বার</strong></div>`;
+        }
+        
+        if(historyLogs.length === 0) {
+            if(!m.prevCount || m.prevCount === 0) histBox.innerHTML = `<p style="font-size:12px; color:#888; text-align:center; padding:10px;">কোনো রক্তদানের হিস্ট্রি রেকর্ড পাওয়া যায়নি।</p>`;
+        } else {
+            historyLogs.forEach((log, i) => {
+                histBox.innerHTML += `
+                    <div class="profile-history-item">
+                        <span>📅 \${log.date} — 🏥 \${log.hospital}</span> 
+                        <strong>রেকርድ #\${historyLogs.length - i}</strong>
+                    </div>`;
+            });
+        }
+        document.getElementById('profileViewModal').style.display = 'flex';
+    }
+
+    document.getElementById('searchDonorInput').addEventListener('input', function(e) {
+        const text = convertBengaliToEnglishNumbers(e.target.value.trim().toLowerCase());
+        const suggestBox = document.getElementById('donorSuggestions');
+        if(!text) { suggestBox.style.display = 'none'; return; }
+        const matches = members.filter(m => m.memberId.toLowerCase().includes(text) || m.phone.includes(text));
+        suggestBox.innerHTML = '';
+        if(matches.length > 0) {
+            suggestBox.style.display = 'block';
+            matches.forEach(m => {
+                const div = document.createElement('div'); div.className = 'suggestion-item';
+                div.innerHTML = `<div><strong>\${m.name}</strong> (\${m.memberId})</div> <span class="badge">\${m.bloodGroup}</span>`;
+                div.onclick = function() {
+                    document.getElementById('selectedDonorId').value = m.id;
+                    document.getElementById('previewName').innerText = m.name; document.getElementById('previewId').innerText = m.memberId;
+                    document.getElementById('selectedDonorPreview').style.display = 'block';
+                    document.getElementById('searchDonorInput').value = m.name; suggestBox.style.display = 'none';
+                };
+                suggestBox.appendChild(div);
+            });
+        }
+    });
+
+    document.getElementById('donationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const memberInternalId = document.getElementById('selectedDonorId').value;
+        const date = document.getElementById('dDate').value;
+        const hospital = document.getElementById('dHospital').value;
+        const targetMember = members.find(m => m.id === memberInternalId);
+
+        donations.unshift({ id: Date.now().toString(), memberId: targetMember.memberId, donorInternalId: memberInternalId, date, hospital });
+        saveToLocalStorage();
+        document.getElementById('donationForm').reset();
+        document.getElementById('selectedDonorPreview').style.display = 'none';
+        
+        const msg = `আসসালামু আলাইকুম।\\n\\nনরসিংদী ব্লাড ডোনার ক্লাব-এর পক্ষ থেকে আপনাকে আন্তরিক ধন্যবাদ! 🌹\\n\\nসম্মানিত রক্তদাতা \${targetMember.name},\\nআপনি গত \${date} তারিখে \${hospital}-এ স্বেচ্ছায় রক্তদান করে একটি মূল্যবান জীবন বাঁচাতে অনন্য অবদান রেখেছেন। আল্লাহ্ আপনার এই মানবতাবাদী দানকে কবুল করুন। আমীন। ❤️`;
+        
+        document.getElementById('thankYouMsgText').innerText = msg;
+        document.getElementById('wpMessageBtn').href = `https://wa.me/88\${targetMember.phone}?text=\${encodeURIComponent(msg)}`;
+        document.getElementById('thankYouModal').style.display = 'flex';
+    });
+
+    function displayDonations() {
+        const tbody = document.getElementById('donationTableBody'); if(!tbody) return; tbody.innerHTML = '';
+        donations.forEach(d => {
+            const m = members.find(mem => mem.memberId === d.memberId) || {name:'-', bloodGroup:'-'};
+            tbody.innerHTML += `<tr><td>\${d.date}</td><td><span class="badge id-badge">\${d.memberId}</span></td><td>\${m.name}</td><td><span class="badge">\${m.bloodGroup}</span></td><td>\${d.hospital}</td>
+            <td>
+                <div class="action-dropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown(event, '\${d.id}')">অ্যাকশন ▾</button>
+                    <div id="dropdown-\${d.id}" class="dropdown-content">
+                        <a href="#" onclick="openCertificateModal('\${d.memberId}', '\${d.date}')">📜 সার্টিফিকেট</a>
+                        <a href="#" onclick="deleteDonationLog('\${d.id}')" style="color:red;">❌ মুছুন</a>
+                    </div>
+                </div>
+            </td></tr>`;
+        });
+    }
+
+    window.toggleDropdown = function(e, id) { e.stopPropagation(); document.getElementById(`dropdown-\${id}`).classList.toggle('show'); }
+    
+    window.closeModal = function(id) { 
+        document.getElementById(id).style.display = 'none'; 
+        if(id==='thankYouModal') { switchTab('donation-list-tab'); displayDonations(); displayMembers(); } 
+    }
+    
+    window.initiateMemberEdit = function(id) {
+        const m = members.find(mem => mem.id === id); switchTab('membership-tab');
+        document.getElementById('editMemberInternalId').value = m.id; 
+        document.getElementById('mType').value = m.type || 'donor';
+        togglePreviousDonationField();
+        
+        document.getElementById('mName').value = m.name;
+        if(m.gender) document.getElementById('mGender').value = m.gender;
+        document.getElementById('mArea').value = m.area || '';
+        document.getElementById('mPhone').value = m.phone; 
+        document.getElementById('mBlood').value = m.bloodGroup;
+        
+        document.getElementById('mAltPhone').value = m.altPhone || '';
+        document.getElementById('mDob').value = m.dob || '';
+        document.getElementById('mJoinDate').value = m.joinDate || '';
+        document.getElementById('mFbLink').value = m.fbLink || '';
+        document.getElementById('mPermanentAddress').value = m.permanentAddress || '';
+
+        document.getElementById('existingPhotoBase64').value = m.photo || ''; 
+        if(m.photo) { document.getElementById('photoPreviewContainer').innerHTML = `<img src="\${m.photo}" style="width:100%;height:100%;object-fit:cover;">`; }
+        document.getElementById('memberSubmitBtn').innerText = "আপডেট নিশ্চিত করুন";
+    }
+
+    window.deleteMember = function(id) { if(confirm("ডিলিট করতে চান?")) { members = members.filter(m => m.id !== id); saveToLocalStorage(); displayMembers(); } }
+    window.deleteDonationLog = function(id) { if(confirm("রেকর্ড মুছতে চান?")) { donations = donations.filter(d => d.id !== id); saveToLocalStorage(); displayDonations(); displayMembers(); } }
+
+    window.openCertificateModal = function(memberId, dateStr) {
+        const m = members.find(mem => mem.memberId === memberId);
+        document.getElementById('certDonorName').innerText = m.name; document.getElementById('certBloodGroup').innerText = `[\${m.bloodGroup}]`;
+        document.getElementById('certDate').innerText = dateStr; document.getElementById('certModal').style.display = 'flex';
+    }
+
+    window.downloadCertificate = function() { html2canvas(document.getElementById('certificate-frame')).then(c => { const l = document.createElement('a'); l.download = 'Certificate.png'; l.href = c.toDataURL(); l.click(); }); }
+    
+    window.exportToJSON = function() {
+        const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, donations, bloodRequests, nextIdSequence }));
+        a.download = `NBDC_Master_Backup.json`; a.click();
+    }
+    
+    window.importFromJSON = function(e) {
+        const reader = new FileReader(); reader.onload = function(evt) {
+            const p = JSON.parse(evt.target.result); members = p.members||[]; donations = p.donations||[]; bloodRequests = p.bloodRequests||[]; nextIdSequence = p.nextIdSequence||1;
+            saveToLocalStorage(); displayMembers(); displayDonations(); displayBloodRequests(); alert("রিস্টোর সফল!");
+        }; reader.readAsText(e.target.files[0]);
+    }
+
+    window.copyThankYouMessage = function() {
+        const msg = document.getElementById('thankYouMsgText').innerText;
+        navigator.clipboard.writeText(msg).then(() => alert('মেসেজটি কপি করা হয়েছে!'));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { 
+        const idDisplay = document.getElementById('memberIdDisplay');
+        if(idDisplay) idDisplay.value = generateMemberId(); 
+        if(localStorage.getItem('adminTheme') === 'dark') { document.body.classList.add('dark-theme'); }
+        checkCurrentSession();
+    });
+    document.addEventListener('click', () => { document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); });
+</script>
+</body>
+</html>
