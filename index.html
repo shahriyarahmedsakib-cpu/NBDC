@@ -29,7 +29,6 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; }
         .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px 15px; }
         
-        /* Views visibility rules - Preventing Double Page */
         #publicView, #adminView { display: none; }
         .view-active { display: block !important; }
 
@@ -60,7 +59,7 @@
         .request-trigger-btn:hover { background: #25426e; transform: scale(1.02); }
         
         .donor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 35px; }
-        .donor-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--card-shadow); padding: 20px; text-align: center; transition: 0.3s; border-top: 4px solid var(--success-color); color: var(--text-color); }
+        .donor-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--card-shadow); padding: 20px; text-align: center; transition: 0.3s; border-top: 4px solid var(--success-color); color: var(--text-color); position: relative; }
         .donor-card:hover { transform: translateY(-5px); }
         .donor-avatar { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); margin-bottom: 12px; background: #eee; }
         .donor-name { font-size: 18px; font-weight: bold; color: var(--secondary-color); margin-bottom: 5px; }
@@ -68,10 +67,18 @@
         .donor-blood-badge { display: inline-block; background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }
         .donor-meta { font-size: 13px; color: #6c757d; margin-bottom: 15px; }
         
+        /* Rank Badge Style */
+        .rank-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+        .badge-bronze { background: #cd7f32; color: white; }
+        .badge-silver { background: #c0c0c0; color: #333; }
+        .badge-gold { background: #ffd700; color: #333; animation: goldGlow 2s infinite alternate; }
+        .badge-platinum { background: #e5e4e2; color: #1d3557; border: 1px solid #1d3557; }
+        @keyframes goldGlow { from { box-shadow: 0 0 2px #ffd700; } to { box-shadow: 0 0 10px #ffd700; } }
+
         .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(29, 53, 87, 0.95); display: none; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 40px 30px; border-radius: var(--border-radius); box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; position: relative; color: #333; }
         .close-login { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #aaa; }
-        .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; }
+        .login-box input { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
         .login-box button { background: var(--primary-color); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
         .login-error { color: var(--primary-color); font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
         
@@ -146,12 +153,18 @@
         .profile-history-box { max-height: 150px; overflow-y: auto; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-top: 15px; text-align: left; }
         .profile-history-item { font-size: 12px; border-bottom: 1px dashed var(--border-color); padding: 5px 0; display: flex; justify-content: space-between; }
         
-        #certificate-frame { width: 100%; max-width: 600px; height: 440px; margin: 20px auto; background: #fff; border: 12px double #e63946; padding: 25px; position: relative; color: #333; }
-        .cert-org-name { font-size: 24px; color: #1d3557; font-weight: bold; margin-bottom: 2px; }
-        .cert-title { font-size: 24px; color: #e63946; font-weight: bold; margin-bottom: 15px; }
-        .cert-text { font-size: 14px; line-height: 1.8; color: #333; }
-        .cert-name { font-size: 20px; font-weight: bold; color: #1d3557; border-bottom: 2px dashed #ccc; display: inline-block; padding: 0 15px; }
-        .cert-footer { display: flex; justify-content: space-between; margin-top: 35px; padding: 0 20px; font-size: 12px; font-weight: 600; }
+        /* Fixed Aspect Ratio Certificate Wrapper for perfect downloading */
+        .cert-container-fixed { width: 1050px; height: 750px; position: fixed; top: -9999px; left: -9999px; background: #fff; padding: 45px; box-sizing: border-box; }
+        #certificate-frame-fixed { width: 100%; height: 100%; border: 20px double #e63946; padding: 50px; text-align: center; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; position: relative; color: #333; background: #fff; }
+        .cert-org-name { font-size: 42px; color: #1d3557; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+        .cert-title { font-size: 38px; color: #e63946; font-weight: bold; margin-bottom: 45px; text-transform: uppercase; }
+        .cert-text { font-size: 24px; line-height: 2; color: #333; margin-top: 20px; }
+        .cert-name { font-size: 36px; font-weight: bold; color: #1d3557; border-bottom: 3px dashed #ccc; display: inline-block; padding: 0 25px; margin: 15px 0; }
+        .cert-footer { display: flex; justify-content: space-between; position: absolute; bottom: 60px; left: 80px; right: 80px; font-size: 18px; font-weight: 600; }
+        
+        /* CSS-only Preview Frame for Modal View */
+        .cert-preview-wrapper { width: 100%; max-width: 550px; margin: 0 auto; background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .cert-preview-box { width: 100%; aspect-ratio: 1050 / 750; background: white; border: 4px double #e63946; border-radius: 4px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; line-height: 1.5; color: #333; }
         
         .thankyou-box { background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 6px; text-align: left; font-size: 14px; max-height: 150px; overflow-y: auto; margin-bottom: 20px; white-space: pre-line; }
         .suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; }
@@ -159,40 +172,39 @@
         .suggestion-item:hover { background-color: var(--border-color); color: var(--primary-color); }
         .backup-container { display: flex; gap: 10px; }
         .btn-backup { background: #4a5568; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; flex: 1; }
+        
+        /* Admin-only & Moderator Access controls */
+        .admin-only { display: none; }
+        body.role-admin .admin-only { display: block !important; }
+        tr.admin-only-tr { display: none; }
+        body.role-admin tr.admin-only-tr { display: table-row !important; }
+        span.admin-only-span { display: none; }
+        body.role-admin span.admin-only-span { display: inline-block !important; }
+        a.admin-only-a { display: none; }
+        body.role-admin a.admin-only-a { display: block !important; }
     </style>
 </head>
 <body>
 
 <div class="ticker-wrap" id="liveTickerWrap" style="display:none;">
-    <div class="ticker-content" id="liveTickerText">로드 হচ্ছে...</div>
+    <div class="ticker-content" id="liveTickerText">লোড হচ্ছে...</div>
 </div>
 
-<!-- PUBLIC VIEW CONTAINER -->
 <div id="publicView">
     <header class="public-header">
         <h1>নরসিংদী ব্লাড ডোনার ক্লাব</h1>
         <p>“আপনার রক্তে বাঁচবে প্রাণ, স্বেচ্ছায় করুন রক্তদান।”</p>
-        <button class="admin-portal-btn" onclick="openLoginOverlay()">🔒 অ্যাডমিন প্যানেল</button>
+        <button class="admin-portal-btn" onclick="openLoginOverlay()">🔒 লগইন প্যানেল</button>
     </header>
     <div class="container">
         <div class="search-hero">
             <h2>🔍 জরুরি রক্তের প্রয়োজন? এখনই খুঁজে নিন</h2>
             <div class="search-grid" style="margin-bottom: 15px;">
                 <select id="publicBloodSearch">
-                    <option value="">রক্তের গ্রুপ...</option>
-                    <option value="A+">A+</option><option value="A-">A-</option>
-                    <option value="B+">B+</option><option value="B-">B-</option>
-                    <option value="O+">O+</option><option value="O-">O-</option>
-                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                    <option value="">রکتের গ্রুপ...</option>
                 </select>
                 <select id="publicAreaSearch">
                     <option value="">উপজেলা/এলাকা...</option>
-                    <option value="নরসিংদী সদর">নরসিংদী সদর</option>
-                    <option value="শিবপুর">শিবপুর</option>
-                    <option value="রায়পুরা">রায়পুরা</option>
-                    <option value="বেলাবো">বেলাবো</option>
-                    <option value="মনোহরদী">মনোহরদী</option>
-                    <option value="পলাশ">পলাশ</option>
                 </select>
                 <button onclick="filterPublicDonors()">অনুসন্ধান</button>
             </div>
@@ -209,13 +221,12 @@
     </div>
 </div>
 
-<!-- ADMIN VIEW CONTAINER -->
 <div id="adminView">
     <div class="container">
         <header class="admin-header">
             <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 ডার্ক/লাইট মোড</button>
-            <h1 style="font-size: 24px;">🛠️ ক্লাবের মূল এডমিন ডাটাবেজ প্যানেল</h1>
-            <p>নিরাপদ ও সুসংগঠিত রক্তদাতা ব্যবস্থাপনা সিস্টেম</p>
+            <h1 style="font-size: 24px;">🛠️ ক্লাবের কন্ট্রোল ডাটাবেজ প্যানেল</h1>
+            <p id="loggedInUserIdentity">লগইন রোল: লোডিং...</p>
             <button class="admin-portal-btn" onclick="handleLogout()" style="background:var(--primary-color);">🚪 পাবলিক পেজে ফিরুন</button>
         </header>
         
@@ -237,21 +248,21 @@
             <button class="tab-btn" id="tabBtn-request-list-tab" onclick="switchTab('request-list-tab')">
                 📥 ইনকামিং রিকোয়েস্টস <span class="notif-badge" id="reqNotifBadge" style="display:none;">0</span>
             </button>
+            <button class="tab-btn admin-only" id="tabBtn-settings-tab" onclick="switchTab('settings-tab')">⚙️ সিস্টেম সেটিংস</button>
         </div>
 
-        <!-- Tab contents -->
         <div id="membership-tab" class="tab-content active">
             <div class="panel-grid">
                 <div class="card">
-                    <h2>নতুন সদস্য নিবন্ধন ফরম</h2>
+                    <h2>সদস্য নিবন্ধন ও সংশোধন ফরম</h2>
                     <form id="membershipForm">
                         <input type="hidden" id="editMemberInternalId"><input type="hidden" id="existingPhotoBase64">
                         <div class="form-row">
                             <div class="form-group">
                                 <label>সদস্য আইডি:</label>
                                 <div class="id-input-container">
-                                    <input type="text" id="memberIdDisplay" readonly placeholder="NBDC001">
-                                    <button type="button" class="btn-inline-customize" onclick="enableIdCustomization()">⚙️</button>
+                                    <input type="text" id="memberIdDisplay" readonly>
+                                    <button type="button" class="btn-inline-customize admin-only" onclick="enableIdCustomization()">⚙️</button>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -267,19 +278,13 @@
                             <div class="form-group">
                                 <label>জেন্ডার (লিঙ্গ):</label>
                                 <select id="mGender" required>
-                                    <option value="male">পুরুষ</option>
-                                    <option value="female">মহিলা</option>
+                                    <option value="পুরুষ">পুরুষ</option>
+                                    <option value="মহিলা">মহিলা</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>রক্তের গ্রুপ:</label>
-                                <select id="mBlood" required>
-                                    <option value="">নির্বাচন</option>
-                                    <option value="A+">A+</option><option value="A-">A-</option>
-                                    <option value="B+">B+</option><option value="B-">B-</option>
-                                    <option value="O+">O+</option><option value="O-">O-</option>
-                                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
-                                </select>
+                                <select id="mBlood" required></select>
                             </div>
                         </div>
                         <div class="form-row">
@@ -293,19 +298,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>বর্তমান উপজেলা / এলাকা:</label>
-                                <select id="mArea" required>
-                                    <option value="">নির্বাচন</option>
-                                    <option value="নরসিংদী সদর">নরসিংদী সদর</option>
-                                    <option value="শিবপুর">শিবপুর</option>
-                                    <option value="রায়পুরা">রায়পুরা</option>
-                                    <option value="বেলাবো">বেলাবো</option>
-                                    <option value="মনোহরদী">মনোহরদী</option>
-                                    <option value="পলাশ">পলাশ</option>
-                                </select>
+                                <select id="mArea" required></select>
                             </div>
-                            <div class="form-group"><label>ফেসবুক প্রোফাইল লিঙ্ক:</label><input type="url" id="mFbLink" placeholder="https://facebook.com/..."></div>
+                            <div class="form-group"><label>ফেসবুক প্রোফাইল লিঙ্ক:</label><input type="url" id="mFbLink"></div>
                         </div>
-                        <div class="form-group"><label>স্থায়ী ঠিকানা:</label><input type="text" id="mPermanentAddress" placeholder="গ্রাম, ইউনিয়ন, জেলা..."></div>
+                        <div class="form-group"><label>স্থায়ী ঠিকানা:</label><input type="text" id="mPermanentAddress"></div>
                         <div class="form-group">
                             <label>📸 সদস্যের ছবি যোগ করুন (JPEG/PNG):</label>
                             <input type="file" accept="image/*" onchange="previewMemberImage(this)">
@@ -315,25 +312,16 @@
                         <button type="submit" id="memberSubmitBtn" style="background:var(--primary-color); color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">সদস্য নিশ্চিত করুন</button>
                     </form>
                 </div>
-                <div class="card" style="background: var(--card-bg); border: 2px dashed var(--border-color); text-align: center; color: #6c757d; padding: 35px;">
-                    <h3>💡 ডাটাবেজ অপশন</h3>
-                    <p style="font-size: 13px; margin: 10px 0 30px 0;">সম্পূর্ণ ডাটা ক্লাউড ও ব্যাকআপ ফরম্যাটে নিচে ডাউনলোডের সুবিধা দেওয়া হলো।</p>
-                    <div class="backup-container">
-                        <button class="btn-backup" onclick="exportToJSON()">📥 ব্যাকআপ ডাউনলোড</button>
-                        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 রিস্টোর করুন</button>
-                        <input type="file" id="importFile" style="display:none" onchange="importFromJSON(event)">
-                    </div>
-                </div>
             </div>
         </div>
 
         <div id="donation-tab" class="tab-content">
             <div class="card" style="max-width: 600px;">
-                <h2>রক্তদান রেকর্ড ফরম</h2>
+                <h2>নতুন রক্তদান রেকর্ড ফরম</h2>
                 <form id="donationForm">
                     <div class="form-group">
                         <label>🔍 সদস্য খুঁজুন:</label>
-                        <input type="text" id="searchDonorInput" autocomplete="off" placeholder="উদা: NBDC001 বা ফোন নম্বর...">
+                        <input type="text" id="searchDonorInput" autocomplete="off" placeholder="টাইপ করুন...">
                         <div id="donorSuggestions" class="suggestions-list"></div>
                     </div>
                     <div id="selectedDonorPreview" style="display:none; background:#e8f5e9; padding:15px; border-radius:6px; margin-bottom:15px; font-size:13px; border-left:4px solid var(--success-color); color: #333;">
@@ -351,23 +339,13 @@
             <div class="card">
                 <h2>নিবন্ধিত সদস্য তালিকা (মাস্টার ফাইল)</h2>
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px; margin-bottom:20px; background:var(--bg-color); border:1px solid var(--border-color); padding:15px; border-radius:8px;">
-                    <div><label>🔍 নাম বা ফোন নম্বর:</label><input type="text" id="memberSearch" placeholder="টাইপ করুন..." oninput="displayMembers()"></div>
-                    <div><label>📍 এলাকা ফিল্টার:</label>
-                        <select id="adminAreaFilter" onchange="displayMembers()">
-                            <option value="">সব এলাকা</option>
-                            <option value="নরসিংদী সদর">নরসিংদী সদর</option><option value="শিবপুর">শিবপুর</option><option value="রায়পুরা">রায়পুরা</option><option value="বেলাবো">বেলাবো</option><option value="মনোহরদী">মনোহরদী</option><option value="পলাশ">পলাশ</option>
-                        </select>
-                    </div>
-                    <div><label>🩸 রক্তের গ্রুপ ফিল্টার:</label>
-                        <select id="bloodFilter" onchange="displayMembers()">
-                            <option value="">সব গ্রুপ</option>
-                            <option value="A+">A+</option><option value="A-">A-</option><option value="B+">B+</option><option value="B-">B-</option><option value="O+">O+</option><option value="O-">O-</option><option value="AB+">AB+</option><option value="AB-">AB-</option>
-                        </select>
-                    </div>
+                    <div><label>🔍 নাম বা ফোন নম্বর:</label><input type="text" id="memberSearch" oninput="displayMembers()"></div>
+                    <div><label>📍 এলাকা ফিল্টার:</label><select id="adminAreaFilter" onchange="displayMembers()"><option value="">সব এলাকা</option></select></div>
+                    <div><label>🩸 রক্তের গ্রুপ ফিল্টার:</label><select id="bloodFilter" onchange="displayMembers()"><option value="">সব গ্রুপ</option></select></div>
                     <div><label>⚡ স্ট্যাটাস ফিল্টার:</label>
                         <select id="statusFilter" onchange="displayMembers()">
                             <option value="">সব সদস্য</option>
-                            <option value="ready">✅ শুধুমাত্র প্রস্তুত ডোনার</option>
+                            <option value="ready">✅ প্রস্তুত ডোনার</option>
                             <option value="not_ready">⏳ রক্তদানের সময় হয়নি</option>
                             <option value="volunteer">👥 সহযোগী ভলান্টিয়ার</option>
                         </select>
@@ -411,18 +389,83 @@
                 </div>
             </div>
         </div>
+        
+        <div id="settings-tab" class="tab-content admin-only">
+            <div class="panel-grid">
+                <div class="card">
+                    <h2>⚙️ গ্লোবাল সিস্টেম কনফিগারেশন</h2>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="font-size:15px; display:inline-flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="settingCertToggle" style="width:20px; height:20px;" onchange="saveGlobalSettings()"> 📜 মেম্বার সার্টিফিকেট জেনারেশন ফিচার সচল রাখুন
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>📢 কাস্টম স্ক্রলিং নোটিশ (পাবলিক অ্যানাউন্সমেন্ট):</label>
+                        <textarea id="settingCustomNotice" rows="3" oninput="saveGlobalSettings()"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>🩸 রক্তের গ্রুপের তালিকা (কমা দিয়ে আলাদা করুন):</label>
+                        <input type="text" id="settingBloodList" onchange="saveGlobalSettings()">
+                    </div>
+                    <div class="form-group">
+                        <label>📍 উপজেলা/এলাকার তালিকা (কমা দিয়ে আলাদা করুন):</label>
+                        <input type="text" id="settingAreaList" onchange="saveGlobalSettings()">
+                    </div>
+                    <hr style="margin:20px 0; border:0; border-top:1px solid var(--border-color);">
+                    <h3>🏅 ডোনার মেডেল/ব্যাজ সেটিংস (সর্বমোট রক্তদান)</h3>
+                    <div class="form-row" style="margin-top:10px;">
+                        <div class="form-group"><label>🥉 ব্রোঞ্জ মেডেল (নূন্যতম বার):</label><input type="number" id="rankBronzeMin" onchange="saveGlobalSettings()"></div>
+                        <div class="form-group"><label>🥈 সিলভার মেডেল (নূন্যতম বার):</label><input type="number" id="rankSilverMin" onchange="saveGlobalSettings()"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>🥇 গোল্ডেন মেডেল (নূন্যতম বার):</label><input type="number" id="rankGoldMin" onchange="saveGlobalSettings()"></div>
+                        <div class="form-group"><label>💎 প্লাটিনাম মেডেল (নূন্যতম বার):</label><input type="number" id="rankPlatMin" onchange="saveGlobalSettings()"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>👥 ইউজার অ্যাকাউন্টস ম্যানেজার (মাল্টি-ইউজার)</h2>
+                    <form id="createNewUserForm" style="margin-bottom: 20px; background:var(--bg-color); padding:15px; border-radius:6px; border:1px solid var(--border-color);">
+                        <div class="form-group"><label>নতুন ইউজারনেম:</label><input type="text" id="newUsername" required></div>
+                        <div class="form-group"><label>লগইন পাসওয়ার্ড:</label><input type="password" id="newUserPassword" required></div>
+                        <div class="form-group">
+                            <label>অ্যাকাউন্টের ধরন (রোল):</label>
+                            <select id="newUserRole">
+                                <option value="admin">👑 সুপার অ্যাডমিন (Full Access)</option>
+                                <option value="moderator">🛠️ মডারেটর (No Delete/No Settings)</option>
+                            </select>
+                        </div>
+                        <button type="submit" style="background:var(--secondary-color); color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold; width:100%;">নতুন অ্যাকাউন্ট তৈরি করুন</button>
+                    </form>
+                    <h3>বর্তমান ইউজারদের তালিকা</h3>
+                    <div class="table-responsive" style="margin-top:10px; max-height:220px;">
+                        <table style="min-width:100%;">
+                            <thead><tr><th>ইউজারনেম</th><th>রোল</th><th>অ্যাকশন</th></tr></thead>
+                            <tbody id="userAccountsTableBody"></tbody>
+                        </table>
+                    </div>
+                    
+                    <hr style="margin:25px 0; border:0; border-top:1px solid var(--border-color);">
+                    <h3>📦 ডাটাবেজ অপশন (ব্যাকআপ ও রিস্টোর)</h3>
+                    <div class="backup-container" style="margin-top:15px;">
+                        <button class="btn-backup" onclick="exportToJSON()">📥 ব্যাকআপ ডাউনলোড</button>
+                        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 রিস্টোর করুন</button>
+                        <input type="file" id="importFile" style="display:none" onchange="importFromJSON(event)">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Modals & Overlays -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
         <span class="close-login" onclick="closeLoginOverlay()">&times;</span>
-        <h2>🔒 অ্যাডমিন লগইন</h2>
-        <input type="text" id="loginUser" placeholder="ইউজারনেম (admin)" style="margin-top: 15px;" onkeypress="handleEnterLogin(event)">
-        <input type="password" id="loginPass" placeholder="পাসওয়ার্ড (nbdc2026)" onkeypress="handleEnterLogin(event)">
+        <h2>🔒 প্যানেল লগইন</h2>
+        <input type="text" id="loginUser" placeholder="ইউজারনেম" style="margin-top: 20px;">
+        <input type="password" id="loginPass" placeholder="পাসওয়ার্ড">
         <button onclick="checkLogin()">প্রবেশ করুন</button>
-        <div id="loginError" class="login-error">⚠️ ভুল তথ্য!</div>
+        <div id="loginError" class="login-error">⚠️ ভুল ইউজারনেম বা পাসওয়ার্ড!</div>
     </div>
 </div>
 
@@ -432,19 +475,10 @@
         <h2 style="margin-bottom: 15px; border-bottom: 3px solid var(--primary-color);">📥 জরুরি রক্তের আবেদন ফরম</h2>
         <form id="publicRequestForm">
             <div class="form-group"><label>রোগীর নাম:</label><input type="text" id="reqPatient" required></div>
-            <div class="form-group">
-                <label>প্রয়োজনীয় রক্তের গ্রুপ:</label>
-                <select id="reqBlood" required>
-                    <option value="">নির্বাচন করুন</option>
-                    <option value="A+">A+</option><option value="A-">A-</option>
-                    <option value="B+">B+</option><option value="B-">B-</option>
-                    <option value="O+">O+</option><option value="O-">O-</option>
-                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
-                </select>
-            </div>
+            <div class="form-group"><label>প্রয়োজনীয় রক্তের গ্রুপ:</label><select id="reqBlood" required></select></div>
             <div class="form-group"><label>কত ব্যাগ রক্ত প্রয়োজন?:</label><input type="number" id="reqBags" min="1" value="1" required></div>
             <div class="form-group"><label>হাসপাতাল ও স্থান:</label><input type="text" id="reqHospital" required></div>
-            <div class="form-group"><label>যোগাযোগের ফোন নম্বর:</label><input type="tel" id="reqPhone" placeholder="017xxxxxxxx" required></div>
+            <div class="form-group"><label>যোগাযোগের ফোন নম্বর:</label><input type="tel" id="reqPhone" required></div>
             <button type="submit" style="background:var(--primary-color); color:white; padding:12px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; width:100%; font-size:16px;">আবেদন সাবমিট করুন</button>
         </form>
     </div>
@@ -479,16 +513,37 @@
 </div>
 
 <div id="certModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 600px;">
         <span class="close-modal" onclick="closeModal('certModal')">&times;</span>
-        <h2>📜 সম্মাননা স্মারক</h2>
-        <div id="certificate-frame">
-            <div class="cert-org-name">নরসিংদী ব্লাড ডোনার ক্লাব</div>
-            <div class="cert-title">রক্তদাতা সম্মাননা স্মারক</div>
-            <div class="cert-text">অত্যಂತ আনন্দের সাথে স্বীকৃতি দেওয়া যাচ্ছে যে,<br><span class="cert-name" id="certDonorName">---</span><br>মানবতার সেবায় স্বেচ্ছায় রক্তদান করে জীবন বাঁচাতে অনন্য ভূমিকা রেখেছেন। রক্তের গ্রুপ <strong id="certBloodGroup">[O+]</strong>, তারিখ <span id="certDate">--/--/----</span>।</div>
-            <div class="cert-footer"><div>নরসিংদী ব্লাড ডোনার ক্লাব</div><div>পরিচালক / সভাপতি</div></div>
+        <h2>📜 সম্মাননা স্মারক প্রিভিউ</h2>
+        <p style="font-size:12px; color:#6c757d; margin-bottom:15px;">মোবাইল বা পিসি—সব ডিভাইস থেকে স্ট্যান্ডার্ড প্রিন্টিং সাইজে ডাউনলোড হবে।</p>
+        
+        <div class="cert-preview-wrapper">
+            <div class="cert-preview-box">
+                <div style="font-weight:bold; color:#1d3557; font-size:13px;">নরসিংদী ব্লাড ডোনার ক্লাব</div>
+                <div style="color:#e63946; font-weight:bold; font-size:11px; margin: 4px 0;">রক্তদাতা সম্মাননা স্মারক</div>
+                <div style="font-size:9px;">অত্যন্ত আনন্দের সাথে স্বীকৃতি দেওয়া যাচ্ছে যে,<br><span style="font-weight:bold; color:#1d3557;" id="certPreviewName">---</span><br>মানবতার সেবায় স্বেচ্ছায় রক্তদান করে জীবন বাঁচাতে অনন্য ভূমিকা রেখেছেন। রক্তের গ্রুপ <strong id="certPreviewBlood">[O+]</strong>, তারিখ <span id="certPreviewDate">--/--/----</span>।</div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:7px; font-weight:bold;"><div>নরসিংদী ব্লাড ডোনার ক্লাব</div><div>পরিচালক / সভাপতি</div></div>
+            </div>
         </div>
-        <button onclick="downloadCertificate()" style="background: #2a9d8f; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">📥 ডাউনলোড করুন</button>
+        <button onclick="downloadCertificate()" style="background: #2a9d8f; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; margin-top:15px;">📥 সার্টিফিকেট ডাউনলোড করুন</button>
+    </div>
+</div>
+
+<div class="cert-container-fixed" id="fixedWidthCertificateCanvas">
+    <div id="certificate-frame-fixed">
+        <div class="cert-org-name">নরসিংদী ব্লাড ডোনার ক্লাব</div>
+        <div class="cert-title">রক্তদাতা সম্মাননা স্মারক</div>
+        <div class="cert-text">
+            অত্যಂತ আনন্দের সাথে স্বীকৃতি দেওয়া যাচ্ছে যে,<br>
+            <span class="cert-name" id="certDonorName">---</span><br>
+            মানবতার সেবায় স্বেচ্ছায় রক্তদান করে জীবন বাঁচাতে অনন্য ভূমিকা রেখেছেন।<br>
+            রক্তের গ্রুপ <strong id="certBloodGroup">[O+]</strong>, রক্তদানের তারিখ: <span id="certDate">--/--/----</span>।
+        </div>
+        <div class="cert-footer">
+            <div>নরসিংদী ব্লাড ডোনার ক্লাব</div>
+            <div>পরিচালক / সভাপতি</div>
+        </div>
     </div>
 </div>
 
@@ -505,16 +560,95 @@
 </div>
 
 <script>
+    // State Database initialization
     let members = JSON.parse(localStorage.getItem('relationalMembers')) || [];
     let donations = JSON.parse(localStorage.getItem('relationalDonations')) || [];
     let bloodRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
     let nextIdSequence = JSON.parse(localStorage.getItem('relationalIdSequence')) || 1;
+    
+    // Multi-User Credentials Store
+    let userAccounts = JSON.parse(localStorage.getItem('nbdcUsers')) || [
+        {username: 'admin', password: 'nbdc2026', role: 'admin', isMaster: true},
+        {username: 'moderator', password: 'nbdcmod', role: 'moderator', isMaster: false}
+    ];
+
+    // Configurable System Global Configs
+    let systemSettings = JSON.parse(localStorage.getItem('nbdcSettings')) || {
+        certEnabled: true,
+        customNotice: "",
+        bloodGroups: "A+,A-,B+,B-,O+,O-,AB+,AB-",
+        areas: "নরসিংদী সদর,শিবপুর,রায়পুরা,বেলাবো,মনোহরদী,পলাশ",
+        rankBronze: 1,
+        rankSilver: 6,
+        rankGold: 16,
+        rankPlat: 26
+    };
 
     function saveToLocalStorage() {
         localStorage.setItem('relationalMembers', JSON.stringify(members));
         localStorage.setItem('relationalDonations', JSON.stringify(donations));
         localStorage.setItem('bloodRequests', JSON.stringify(bloodRequests));
         localStorage.setItem('relationalIdSequence', JSON.stringify(nextIdSequence));
+        localStorage.setItem('nbdcUsers', JSON.stringify(userAccounts));
+        localStorage.setItem('nbdcSettings', JSON.stringify(systemSettings));
+    }
+
+    function saveGlobalSettings() {
+        systemSettings.certEnabled = document.getElementById('settingCertToggle').checked;
+        systemSettings.customNotice = document.getElementById('settingCustomNotice').value.trim();
+        systemSettings.bloodGroups = document.getElementById('settingBloodList').value.trim();
+        systemSettings.areas = document.getElementById('settingAreaList').value.trim();
+        systemSettings.rankBronze = parseInt(document.getElementById('rankBronzeMin').value) || 1;
+        systemSettings.rankSilver = parseInt(document.getElementById('rankSilverMin').value) || 6;
+        systemSettings.rankGold = parseInt(document.getElementById('rankGoldMin').value) || 16;
+        systemSettings.rankPlat = parseInt(document.getElementById('rankPlatMin').value) || 26;
+        saveToLocalStorage();
+        loadDropdownOptions();
+        updateLiveTicker();
+    }
+
+    function populateSettingsInputs() {
+        document.getElementById('settingCertToggle').checked = systemSettings.certEnabled;
+        document.getElementById('settingCustomNotice').value = systemSettings.customNotice;
+        document.getElementById('settingBloodList').value = systemSettings.bloodGroups;
+        document.getElementById('settingAreaList').value = systemSettings.areas;
+        document.getElementById('rankBronzeMin').value = systemSettings.rankBronze;
+        document.getElementById('rankSilverMin').value = systemSettings.rankSilver;
+        document.getElementById('rankGoldMin').value = systemSettings.rankGold;
+        document.getElementById('rankPlatMin').value = systemSettings.rankPlat;
+    }
+
+    function loadDropdownOptions() {
+        const bgSelects = ['publicBloodSearch', 'mBlood', 'reqBlood', 'bloodFilter'];
+        const areaSelects = ['publicAreaSearch', 'mArea', 'adminAreaFilter'];
+        
+        const bgArr = systemSettings.bloodGroups.split(',');
+        const areaArr = systemSettings.areas.split(',');
+
+        bgSelects.forEach(id => {
+            const el = document.getElementById(id); if(!el) return;
+            const currentVal = el.value;
+            el.innerHTML = id.includes('Search') || id.includes('Filter') ? '<option value="">রক্তের গ্রুপ...</option>' : '<option value="">নির্বাচন</option>';
+            bgArr.forEach(b => el.innerHTML += `<option value="${b.trim()}">${b.trim()}</option>`);
+            if(currentVal) el.value = currentVal;
+        });
+
+        areaSelects.forEach(id => {
+            const el = document.getElementById(id); if(!el) return;
+            const currentVal = el.value;
+            el.innerHTML = id.includes('Search') || id.includes('Filter') ? '<option value="">উপজেলা/এলাকা...</option>' : '<option value="">নির্বাচন</option>';
+            areaArr.forEach(a => el.innerHTML += `<option value="${a.trim()}">${a.trim()}</option>`);
+            if(currentVal) el.value = currentVal;
+        });
+    }
+
+    // Rank Badge logic builder
+    function getDonorRankBadgeHTML(totalDonationsCount) {
+        if(totalDonationsCount >= systemSettings.rankPlat) return `<span class="rank-badge badge-platinum">💎 প্লাটিনাম ডোনার</span>`;
+        if(totalDonationsCount >= systemSettings.rankGold) return `<span class="rank-badge badge-gold">👑 গোল্ডেন ডোনার</span>`;
+        if(totalDonationsCount >= systemSettings.rankSilver) return `<span class="rank-badge badge-silver">🥈 স্টার ডোনার</span>`;
+        if(totalDonationsCount >= systemSettings.rankBronze) return `<span class="rank-badge badge-bronze">🥉 রেগুলার</span>`;
+        return '';
     }
 
     function toggleTheme() {
@@ -533,22 +667,39 @@
         } catch(e) {}
     }
 
-    // Fixed Page Double view Logic
+    // Fixed login and direct page sync without double page view
     function checkCurrentSession() {
-        const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+        const currentSessionUser = sessionStorage.getItem('nbdcActiveUser');
+        const currentSessionRole = sessionStorage.getItem('nbdcActiveRole');
+        
         const pView = document.getElementById('publicView');
         const aView = document.getElementById('adminView');
         
-        if (isLoggedIn) {
+        if (currentSessionUser && currentSessionRole) {
             pView.classList.remove('view-active');
             aView.classList.add('view-active');
             
+            // Set Body role classes for visibility modifiers
+            document.body.classList.remove('role-admin', 'role-moderator');
+            document.body.classList.add(`role-${currentSessionRole}`);
+            
+            document.getElementById('loggedInUserIdentity').innerText = `লগইন ইউজার: ${currentSessionUser} (${currentSessionRole === 'admin' ? '👑 সুপার অ্যাডমিন' : '🛠️ মডারেটর'})`;
+            
             const currentTab = sessionStorage.getItem('adminActiveTab') || 'membership-tab';
-            switchTab(currentTab);
+            // Redirect moderator if they try to access settings
+            if(currentSessionRole === 'moderator' && currentTab === 'settings-tab') {
+                switchTab('membership-tab');
+            } else {
+                switchTab(currentTab);
+            }
+            
             displayMembers(); 
             displayDonations(); 
             displayBloodRequests();
+            populateSettingsInputs();
+            displayUserAccounts();
         } else {
+            document.body.classList.remove('role-admin', 'role-moderator');
             aView.classList.remove('view-active');
             pView.classList.add('view-active');
             renderPublicPage();
@@ -557,23 +708,24 @@
 
     function openLoginOverlay() { 
         document.getElementById('loginError').style.display = 'none';
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
         document.getElementById('loginOverlay').style.display = 'flex'; 
         setTimeout(() => document.getElementById('loginUser').focus(), 100);
     }
     
     function closeLoginOverlay() { document.getElementById('loginOverlay').style.display = 'none'; }
 
-    function handleEnterLogin(event) {
-        if (event.key === "Enter") { event.preventDefault(); checkLogin(); }
-    }
-
     function checkLogin() {
         const user = document.getElementById('loginUser').value.trim();
         const pass = document.getElementById('loginPass').value.trim();
         
-        if (user === "admin" && pass === "nbdc2026") {
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            if(!sessionStorage.setItem('adminActiveTab')) sessionStorage.setItem('adminActiveTab', 'membership-tab');
+        const matchedAccount = userAccounts.find(u => u.username === user && u.password === pass);
+        
+        if (matchedAccount) {
+            sessionStorage.setItem('nbdcActiveUser', matchedAccount.username);
+            sessionStorage.setItem('nbdcActiveRole', matchedAccount.role);
+            sessionStorage.setItem('adminActiveTab', 'membership-tab');
             closeLoginOverlay();
             checkCurrentSession();
         } else { 
@@ -582,7 +734,8 @@
     }
 
     function handleLogout() {
-        sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('nbdcActiveUser');
+        sessionStorage.removeItem('nbdcActiveRole');
         sessionStorage.removeItem('adminActiveTab');
         checkCurrentSession();
     }
@@ -625,23 +778,31 @@
         if(!tickerWrap || !tickerText) return;
 
         let visibleRequests = [];
-        const isAdmin = sessionStorage.getItem('adminLoggedIn') === 'true';
+        const isUserLoggedIn = sessionStorage.getItem('nbdcActiveUser') !== null;
 
-        if (isAdmin) {
+        if (isUserLoggedIn) {
             visibleRequests = bloodRequests.filter(r => r.status === 'pending');
         } else {
             const myRequests = JSON.parse(localStorage.getItem('mySubmittedRequests')) || [];
             visibleRequests = bloodRequests.filter(r => r.status === 'pending' && myRequests.includes(r.id));
         }
         
-        if(visibleRequests.length === 0) {
+        let msg = "";
+        if(systemSettings.customNotice) {
+            msg += `📢 ${systemSettings.customNotice}   ||   `;
+        }
+        
+        if(visibleRequests.length > 0) {
+            msg += "🚨 জরুরি ব্লাড নোটিশ: ";
+            visibleRequests.forEach(r => {
+                msg += ` [রোগী: ${r.patientName}, গ্রুপ: ${r.bloodGroup} (${r.bags} ব্যাগ), স্থান: ${r.hospital}, কল: ${r.phone}]  •  `;
+            });
+        }
+        
+        if(msg === "") {
             tickerWrap.style.display = 'none';
         } else {
             tickerWrap.style.display = 'block';
-            let msg = "🚨 জরুরি ব্লাড নোটিশ: ";
-            visibleRequests.forEach(r => {
-                msg += " [রোগীর নাম: " + r.patientName + ", রক্তের গ্রুপ: " + r.bloodGroup + " (" + r.bags + " ব্যাগ), স্থান: " + r.hospital + ", যোগাযোগ: " + r.phone + "]  •  ";
-            });
             tickerText.innerText = msg;
         }
     }
@@ -661,26 +822,27 @@
     function displayBloodRequests() {
         const tbody = document.getElementById('requestTableBody'); if(!tbody) return; tbody.innerHTML = '';
         const visibleRequests = bloodRequests.filter(r => r.status !== 'archived');
+        const currentRole = sessionStorage.getItem('nbdcActiveRole');
         
         visibleRequests.forEach(r => {
             const row = document.createElement('tr');
             row.style.background = r.status === 'resolved' ? 'rgba(0,0,0,0.02)' : 'rgba(230, 57, 70, 0.05)';
             row.innerHTML = `
-                <td>` + r.date + `</td>
-                <td><strong>` + r.patientName + `</strong></td>
-                <td><span class="badge" style="background:` + (r.status === 'resolved' ? '#6c757d' : 'var(--primary-color)') + `">` + r.bloodGroup + `</span> (<b>` + r.bags + ` ব্যাগ</b>)</td>
-                <td>` + r.hospital + `</td>
+                <td>${r.date}</td>
+                <td><strong>${r.patientName}</strong></td>
+                <td><span class="badge" style="background:${r.status === 'resolved' ? '#6c757d' : 'var(--primary-color)'}">${r.bloodGroup}</span> (<b>${r.bags} ব্যাগ</b>)</td>
+                <td>${r.hospital}</td>
                 <td>
-                    <a href="tel:` + r.phone + `" class="btn-comm btn-phone">📞 কল</a>
-                    <a href="https://wa.me/88` + r.phone + `" target="_blank" class="btn-comm btn-wa">💬 WA</a>
+                    <a href="tel:${r.phone}" class="btn-comm btn-phone">📞 কল</a>
+                    <a href="https://wa.me/88${r.phone}" target="_blank" class="btn-comm btn-wa">💬 WA</a>
                 </td>
-                <td><span class="badge" style="background:` + (r.status === 'resolved' ? 'var(--success-color)' : 'var(--warning-color)') + `">` + (r.status === 'resolved' ? 'সমাধানকৃত' : 'অপেক্ষমাণ') + `</span></td>
+                <td><span class="badge" style="background:${r.status === 'resolved' ? 'var(--success-color)' : 'var(--warning-color)'}">${r.status === 'resolved' ? 'সমাধানকৃত' : 'অপেক্ষমাণ'}</span></td>
                 <td>
                     <div class="action-dropdown">
-                        <button class="dropdown-btn" onclick="toggleDropdown(event, '` + r.id + `')">অ্যাকশন ▾</button>
-                        <div id="dropdown-` + r.id + `" class="dropdown-content">
-                            ` + (r.status === 'pending' ? `<a href="#" onclick="resolveRequest('` + r.id + `')">✅ Resolve করুন</a>` : '') + `
-                            <a href="#" onclick="archiveRequest('` + r.id + `')" style="color:red;">❌ মুছে ফেলুন</a>
+                        <button class="dropdown-btn" onclick="toggleDropdown(event, '${r.id}')">অ্যাকশন ▾</button>
+                        <div id="dropdown-${r.id}" class="dropdown-content">
+                            ${r.status === 'pending' ? `<a href="#" onclick="resolveRequest('${r.id}')">✅ Resolve করুন</a>` : ''}
+                            ${currentRole === 'admin' ? `<a href="#" onclick="archiveRequest('${r.id}')" style="color:red;">❌ মুছে ফেলুন</a>` : '<a style="color:#aaa; cursor:not-allowed;">❌ মুছার অনুমতি নেই</a>'}
                         </div>
                     </div>
                 </td>
@@ -728,13 +890,14 @@
             recentDonations.forEach(d => {
                 const m = members.find(mem => mem.memberId === d.memberId);
                 if(m) {
+                    const totalCount = (m.prevCount || 0) + donations.filter(don => don.memberId === m.memberId).length;
                     honorBoardContainer.innerHTML += `
                         <div class="donor-card">
-                            <img src="` + (m.photo || dummyPhoto) + `" class="donor-avatar">
-                            <div class="donor-name">` + m.name + `</div>
-                            <span class="donor-blood-badge" style="background:var(--secondary-color);">` + m.bloodGroup + `</span>
-                            <div class="donor-meta" style="color:var(--primary-color); font-weight:bold;">📍 স্থান: ` + d.hospital + `</div>
-                            <div class="donor-meta">তারিখ: ` + d.date + `</div>
+                            <img src="${m.photo || dummyPhoto}" class="donor-avatar">
+                            <div class="donor-name">${m.name} ${getDonorRankBadgeHTML(totalCount)}</div>
+                            <span class="donor-blood-badge" style="background:var(--secondary-color);">${m.bloodGroup}</span>
+                            <div class="donor-meta" style="color:var(--primary-color); font-weight:bold;">📍 স্থান: ${d.hospital}</div>
+                            <div class="donor-meta">তারিখ: ${d.date}</div>
                         </div>`;
                 }
             });
@@ -753,14 +916,14 @@
                 const totalCount = (m.prevCount || 0) + donations.filter(d => d.memberId === m.memberId).length;
                 donorContainer.innerHTML += `
                     <div class="donor-card">
-                        <img src="` + (m.photo || dummyPhoto) + `" class="donor-avatar">
-                        <div class="donor-name">` + m.name + `</div>
-                        <span class="donor-blood-badge">` + m.bloodGroup + `</span>
-                        <div class="donor-meta">📍 এলাকা: <strong>` + (m.area || 'নরসিংদী') + `</strong></div>
-                        <div class="donor-meta">সর্বমোট দান: <strong>` + totalCount + ` বার</strong></div>
+                        <img src="${m.photo || dummyPhoto}" class="donor-avatar">
+                        <div class="donor-name">${m.name} ${getDonorRankBadgeHTML(totalCount)}</div>
+                        <span class="donor-blood-badge">${m.bloodGroup}</span>
+                        <div class="donor-meta">📍 এলাকা: <strong>${m.area || 'নরসিংদী'}</strong></div>
+                        <div class="donor-meta">সর্বমোট দান: <strong>${totalCount} বার</strong></div>
                         <div class="communication-btns" style="justify-content:center;">
-                            <a href="tel:` + m.phone + `" class="btn-comm btn-phone" style="padding: 7px 15px;">📞 কল দিন</a>
-                            <a href="https://wa.me/88` + m.phone + `" target="_blank" class="btn-comm btn-wa" style="padding: 7px 15px;">💬 মেসেজ</a>
+                            <a href="tel:${m.phone}" class="btn-comm btn-phone" style="padding: 7px 15px;">📞 কল দিন</a>
+                            <a href="https://wa.me/88${m.phone}" target="_blank" class="btn-comm btn-wa" style="padding: 7px 15px;">💬  মেসেজ</a>
                         </div>
                     </div>`;
             });
@@ -782,7 +945,7 @@
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('photoPreviewContainer').innerHTML = `<img src="` + e.target.result + `" style="width:100%;height:100%;object-fit:cover;">`;
+                document.getElementById('photoPreviewContainer').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
                 document.getElementById('existingPhotoBase64').value = e.target.result;
             };
             reader.readAsDataURL(input.files[0]);
@@ -799,7 +962,7 @@
         const activeBtn = document.getElementById(`tabBtn-${tabId}`);
         if(activeBtn) activeBtn.classList.add('active');
         
-        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+        if (sessionStorage.getItem('nbdcActiveUser')) {
             sessionStorage.setItem('adminActiveTab', tabId);
         }
     }
@@ -868,6 +1031,7 @@
         const tbody = document.getElementById('memberTableBody'); if(!tbody) return; tbody.innerHTML = '';
         let readyCount = 0;
         const dummyPhoto = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ccc"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+        const currentRole = sessionStorage.getItem('nbdcActiveRole');
 
         const searchQuery = convertBengaliToEnglishNumbers(document.getElementById('memberSearch').value.trim().toLowerCase());
         const areaFilter = document.getElementById('adminAreaFilter').value;
@@ -878,6 +1042,7 @@
             const remaining = calculateRemainingDays(getLatestDonationDate(m.memberId));
             if(m.type !== 'volunteer' && remaining <= 0) readyCount++;
             const appCount = donations.filter(d => d.memberId === m.memberId).length;
+            const totalCount = (m.prevCount || 0) + appCount;
             
             const matchesSearch = !searchQuery || m.name.toLowerCase().includes(searchQuery) || m.phone.includes(searchQuery);
             const matchesArea = !areaFilter || m.area === areaFilter;
@@ -891,21 +1056,21 @@
             if (matchesSearch && matchesArea && matchesBlood && matchesStatus) {
                 tbody.innerHTML += `
                     <tr>
-                        <td><div style="display:flex; align-items:center;"><img src="` + (m.photo || dummyPhoto) + `" class="table-avatar"><strong>` + m.name + `</strong></div></td>
-                        <td><span class="badge id-badge">` + m.memberId + `</span></td>
-                        <td><b>` + (m.area || '-') + `</b></td>
-                        <td>` + (m.type === 'volunteer' ? 'সহযোগী' : 'রক্তদাতা') + `</td>
-                        <td><span class="badge">` + m.bloodGroup + `</span></td>
-                        <td><a href="tel:` + m.phone + `" class="btn-comm btn-phone">📞 কল</a></td>
-                        <td><strong>` + ((m.prevCount || 0) + appCount) + ` বার</strong></td>
-                        <td>` + (m.type === 'volunteer' ? 'ভলান্টিয়ার' : (remaining > 0 ? `⏳ ` + remaining + ` দিন` : '✅ প্রস্তুত')) + `</td>
+                        <td><div style="display:flex; align-items:center;"><img src="${m.photo || dummyPhoto}" class="table-avatar"><strong>${m.name}</strong> ${getDonorRankBadgeHTML(totalCount)}</div></td>
+                        <td><span class="badge id-badge">${m.memberId}</span></td>
+                        <td><b>${m.area || '-'}</b></td>
+                        <td>${m.type === 'volunteer' ? 'সহযোগী' : 'রক্তদাতা'}</td>
+                        <td><span class="badge">${m.bloodGroup}</span></td>
+                        <td><a href="tel:${m.phone}" class="btn-comm btn-phone">📞 কল</a></td>
+                        <td><strong>${totalCount} বার</strong></td>
+                        <td>${m.type === 'volunteer' ? 'ভলান্টিয়ার' : (remaining > 0 ? `⏳ ${remaining} দিন` : '✅ প্রস্তুত')}</td>
                         <td>
                             <div class="action-dropdown">
-                                <button class="dropdown-btn" onclick="toggleDropdown(event, '` + m.id + `')">অ্যাকশন ▾</button>
-                                <div id="dropdown-` + m.id + `" class="dropdown-content">
-                                    <a href="#" onclick="openProfileModal('` + m.id + `')">👁️ প্রোফাইল দেখুন</a>
-                                    <a href="#" onclick="initiateMemberEdit('` + m.id + `')">✏️ এডিট</a>
-                                    <a href="#" onclick="deleteMember('` + m.id + `')" style="color:red;">❌ ডিলিট</a>
+                                <button class="dropdown-btn" onclick="toggleDropdown(event, '${m.id}')">অ্যাকশন ▾</button>
+                                <div id="dropdown-${m.id}" class="dropdown-content">
+                                    <a href="#" onclick="openProfileModal('${m.id}')">👁️ প্রোফাইল দেখুন</a>
+                                    <a href="#" onclick="initiateMemberEdit('${m.id}')">✏️ এডিট</a>
+                                    ${currentRole === 'admin' ? `<a href="#" onclick="deleteMember('${m.id}')" style="color:red;">❌ ডিলিট</a>` : '<a style="color:#aaa; cursor:not-allowed;">❌ ডিলিট ব্লকড</a>'}
                                 </div>
                             </div>
                         </td>
@@ -934,19 +1099,19 @@
         document.getElementById('profPermAddress').innerText = m.permanentAddress || 'উল্লেখ নেই';
         
         if(m.fbLink) {
-            document.getElementById('profFb').innerHTML = `<a href="` + m.fbLink + `" target="_blank" style="color:var(--primary-color); font-weight:bold; text-decoration:none;">🔗 ফেসবুক লিংক</a>`;
+            document.getElementById('profFb').innerHTML = `<a href="${m.fbLink}" target="_blank" style="color:var(--primary-color); font-weight:bold; text-decoration:none;">🔗 ফেসবুক লিংক</a>`;
         } else {
             document.getElementById('profFb').innerText = 'নাই';
         }
 
-        document.getElementById('profModalAvatarContainer').innerHTML = `<img src="` + (m.photo || dummyPhoto) + `" class="profile-modal-avatar">`;
-        document.getElementById('profModalBloodBadge').innerHTML = `<span class="donor-blood-badge">` + m.bloodGroup + `</span>`;
+        document.getElementById('profModalAvatarContainer').innerHTML = `<img src="${m.photo || dummyPhoto}" class="profile-modal-avatar">`;
+        document.getElementById('profModalBloodBadge').innerHTML = `<span class="donor-blood-badge">${m.bloodGroup}</span>`;
 
         const histBox = document.getElementById('profHistoryContainer'); histBox.innerHTML = '';
         const historyLogs = donations.filter(d => d.memberId === m.memberId);
         
         if(m.prevCount && m.prevCount > 0) {
-            histBox.innerHTML += `<div class="profile-history-item" style="color:var(--success-color);"><span>🏁 ক্লাবে যুক্ত হওয়ার পূর্বের রক্তদান</span> <strong>` + m.prevCount + ` বার</strong></div>`;
+            histBox.innerHTML += `<div class="profile-history-item" style="color:var(--success-color);"><span>🏁 ক্লাবে যুক্ত হওয়ার পূর্বের রক্তদান</span> <strong>${m.prevCount} বার</strong></div>`;
         }
         
         if(historyLogs.length === 0) {
@@ -955,8 +1120,8 @@
             historyLogs.forEach((log, i) => {
                 histBox.innerHTML += `
                     <div class="profile-history-item">
-                        <span>📅 ` + log.date + ` — 🏥 ` + log.hospital + `</span> 
-                        <strong>রেকورد #` + (historyLogs.length - i) + `</strong>
+                        <span>📅 ${log.date} — 🏥 ${log.hospital}</span> 
+                        <strong>রেকورد #${historyLogs.length - i}</strong>
                     </div>`;
             });
         }
@@ -973,7 +1138,7 @@
             suggestBox.style.display = 'block';
             matches.forEach(m => {
                 const div = document.createElement('div'); div.className = 'suggestion-item';
-                div.innerHTML = `<div><strong>` + m.name + `</strong> (` + m.memberId + `)</div> <span class="badge">` + m.bloodGroup + `</span>`;
+                div.innerHTML = `<div><strong>${m.name}</strong> (${m.memberId})</div> <span class="badge">${m.bloodGroup}</span>`;
                 div.onclick = function() {
                     document.getElementById('selectedDonorId').value = m.id;
                     document.getElementById('previewName').innerText = m.name; document.getElementById('previewId').innerText = m.memberId;
@@ -997,28 +1162,69 @@
         document.getElementById('donationForm').reset();
         document.getElementById('selectedDonorPreview').style.display = 'none';
         
-        const msg = `আসসালামু আলাইকুম।\n\nনরসিংদী ব্লাড ডোনার ক্লাব-এর পক্ষ থেকে আপনাকে আন্তরিক ধন্যবাদ! 🌹\n\nসম্মানিত রক্তদাতা ` + targetMember.name + `,\nআপনি গত ` + date + ` তারিখে ` + hospital + `-এ স্বেচ্ছায় রক্তদান করে একটি মূল্যবান জীবন বাঁচাতে অনন্য অবদান রেখেছেন। আল্লাহ্ আপনার এই মানবতাবাদী দানকে কবুল করুন। আমীন। ❤️`;
+        const msg = `আসসালামু আলাইকুম।\n\nনরসিংদী ব্লাড ডোনার ক্লাব-এর পক্ষ থেকে আপনাকে আন্তরিক ধন্যবাদ! 🌹\n\nসম্মানিত রক্তদাতা ${targetMember.name},\nআপনি গত ${date} তারিখে ${hospital}-এ স্বেচ্ছায় রক্তদান করে একটি মূল্যবান জীবন বাঁচাতে অনন্য অবদান রেখেছেন। আল্লাহ্ আপনার এই মানবতাবাদী দানকে কবুল করুন। আমীন। ❤️`;
         
         document.getElementById('thankYouMsgText').innerText = msg;
-        document.getElementById('wpMessageBtn').href = `https://wa.me/88` + targetMember.phone + `?text=` + encodeURIComponent(msg);
+        document.getElementById('wpMessageBtn').href = `https://wa.me/88${targetMember.phone}?text=${encodeURIComponent(msg)}`;
         document.getElementById('thankYouModal').style.display = 'flex';
     });
 
     function displayDonations() {
         const tbody = document.getElementById('donationTableBody'); if(!tbody) return; tbody.innerHTML = '';
+        const currentRole = sessionStorage.getItem('nbdcActiveRole');
+        
         donations.forEach(d => {
             const m = members.find(mem => mem.memberId === d.memberId) || {name:'-', bloodGroup:'-'};
-            tbody.innerHTML += `<tr><td>` + d.date + `</td><td><span class="badge id-badge">` + d.memberId + `</span></td><td>` + m.name + `</td><td><span class="badge">` + m.bloodGroup + `</span></td><td>` + d.hospital + `</td>
+            tbody.innerHTML += `<tr><td>${d.date}</td><td><span class="badge id-badge">${d.memberId}</span></td><td>${m.name}</td><td><span class="badge">${m.bloodGroup}</span></td><td>${d.hospital}</td>
             <td>
                 <div class="action-dropdown">
-                    <button class="dropdown-btn" onclick="toggleDropdown(event, '` + d.id + `')">অ্যাকশন ▾</button>
-                    <div id="dropdown-` + d.id + `" class="dropdown-content">
-                        <a href="#" onclick="openCertificateModal('` + d.memberId + `', '` + d.date + `')">📜 সার্টিফিকেট</a>
-                        <a href="#" onclick="deleteDonationLog('` + d.id + `')" style="color:red;">❌ মুছুন</a>
+                    <button class="dropdown-btn" onclick="toggleDropdown(event, '${d.id}')">অ্যাকশন ▾</button>
+                    <div id="dropdown-${d.id}" class="dropdown-content">
+                        ${systemSettings.certEnabled ? `<a href="#" onclick="openCertificateModal('${d.memberId}', '${d.date}')">📜 সার্টিফিকেট</a>` : '<a style="color:#aaa; cursor:not-allowed;">📜 অফ করা আছে</a>'}
+                        ${currentRole === 'admin' ? `<a href="#" onclick="deleteDonationLog('${d.id}')" style="color:red;">❌ মুছুন</a>` : '<a style="color:#aaa; cursor:not-allowed;">❌ মুছার অনুমতি নেই</a>'}
                     </div>
                 </div>
             </td></tr>`;
         });
+    }
+
+    // Admin Dashboard user management logs
+    function displayUserAccounts() {
+        const tbody = document.getElementById('userAccountsTableBody'); if(!tbody) return; tbody.innerHTML = '';
+        userAccounts.forEach(u => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${u.username}</strong></td>
+                    <td><span class="badge" style="background:${u.role === 'admin' ? 'var(--secondary-color)' : '#6c757d'}">${u.role === 'admin' ? 'সুপার অ্যাডমিন' : 'মডারেটর'}</span></td>
+                    <td>${u.isMaster ? '<i>মূল মাস্টার অ্যাকাউন্ট</i>' : `<button onclick="deleteUserAccount('${u.username}')" style="background:red; color:white; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:11px;">❌ মুছুন</button>`}</td>
+                </tr>
+            `;
+        });
+    }
+
+    document.getElementById('createNewUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const uName = document.getElementById('newUsername').value.trim().toLowerCase();
+        const uPass = document.getElementById('newUserPassword').value.trim();
+        const uRole = document.getElementById('newUserRole').value;
+
+        if(userAccounts.some(u => u.username === uName)) {
+            alert('এই ইউজারনেম অলরেডি নিবন্ধিত আছে!'); return;
+        }
+
+        userAccounts.push({username: uName, password: uPass, role: uRole, isMaster: false});
+        saveToLocalStorage();
+        displayUserAccounts();
+        document.getElementById('createNewUserForm').reset();
+        alert('নতুন অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!');
+    });
+
+    window.deleteUserAccount = function(username) {
+        if(confirm(`আপনি কি নিশ্চিতভাবে "${username}" অ্যাকাউন্টটি ডিলিট করতে চান?`)) {
+            userAccounts = userAccounts.filter(u => u.username !== username);
+            saveToLocalStorage();
+            displayUserAccounts();
+        }
     }
 
     window.toggleDropdown = function(e, id) { e.stopPropagation(); document.getElementById(`dropdown-${id}`).classList.toggle('show'); }
@@ -1047,30 +1253,64 @@
         document.getElementById('mPermanentAddress').value = m.permanentAddress || '';
 
         document.getElementById('existingPhotoBase64').value = m.photo || ''; 
-        if(m.photo) { document.getElementById('photoPreviewContainer').innerHTML = `<img src="` + m.photo + `" style="width:100%;height:100%;object-fit:cover;">`; }
+        if(m.photo) { document.getElementById('photoPreviewContainer').innerHTML = `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;">`; }
         document.getElementById('memberSubmitBtn').innerText = "আপডেট নিশ্চিত করুন";
     }
 
-    window.deleteMember = function(id) { if(confirm("ডিলিট করতে চান?")) { members = members.filter(m => m.id !== id); saveToLocalStorage(); displayMembers(); } }
+    window.deleteMember = function(id) { if(confirm("সদস্য ডিলিট করতে চান?")) { members = members.filter(m => m.id !== id); saveToLocalStorage(); displayMembers(); } }
     window.deleteDonationLog = function(id) { if(confirm("রেকর্ড মুছতে চান?")) { donations = donations.filter(d => d.id !== id); saveToLocalStorage(); displayDonations(); displayMembers(); } }
 
+    // Certificate Generator Fix for Mobile Aspect Ratio
     window.openCertificateModal = function(memberId, dateStr) {
         const m = members.find(mem => mem.memberId === memberId);
-        document.getElementById('certDonorName').innerText = m.name; document.getElementById('certBloodGroup').innerText = `[` + m.bloodGroup + `]`;
-        document.getElementById('certDate').innerText = dateStr; document.getElementById('certModal').style.display = 'flex';
+        
+        // Populate standard downloader canvas
+        document.getElementById('certDonorName').innerText = m.name; 
+        document.getElementById('certBloodGroup').innerText = `[${m.bloodGroup}]`;
+        document.getElementById('certDate').innerText = dateStr; 
+        
+        // Populate viewable preview box modal
+        document.getElementById('certPreviewName').innerText = m.name;
+        document.getElementById('certPreviewBlood').innerText = `[${m.bloodGroup}]`;
+        document.getElementById('certPreviewDate').innerText = dateStr;
+
+        document.getElementById('certModal').style.display = 'flex';
     }
 
-    window.downloadCertificate = function() { html2canvas(document.getElementById('certificate-frame')).then(c => { const l = document.createElement('a'); l.download = 'Certificate.png'; l.href = c.toDataURL(); l.click(); }); }
+    window.downloadCertificate = function() { 
+        const targetCanvas = document.getElementById('fixedWidthCertificateCanvas');
+        // Temporarily put canvas structure into rendering scope for snapshotting
+        targetCanvas.style.top = "0px";
+        targetCanvas.style.left = "0px";
+        
+        html2canvas(targetCanvas, {
+            width: 1050,
+            height: 750,
+            scale: 2 // Boost resolution quality
+        }).then(c => { 
+            const l = document.createElement('a'); 
+            l.download = `NBDC_Certificate_${document.getElementById('certDonorName').innerText}.png`; 
+            l.href = c.toDataURL(); 
+            l.click(); 
+            
+            // Hide canvas back to original storage grid
+            targetCanvas.style.top = "-9999px";
+            targetCanvas.style.left = "-9999px";
+        }); 
+    }
     
     window.exportToJSON = function() {
-        const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, donations, bloodRequests, nextIdSequence }));
+        const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ members, donations, bloodRequests, nextIdSequence, userAccounts, systemSettings }));
         a.download = `NBDC_Master_Backup.json`; a.click();
     }
     
     window.importFromJSON = function(e) {
         const reader = new FileReader(); reader.onload = function(evt) {
-            const p = JSON.parse(evt.target.result); members = p.members||[]; donations = p.donations||[]; bloodRequests = p.bloodRequests||[]; nextIdSequence = p.nextIdSequence||1;
-            saveToLocalStorage(); displayMembers(); displayDonations(); displayBloodRequests(); alert("রিস্টোর সফল!");
+            const p = JSON.parse(evt.target.result); 
+            members = p.members||[]; donations = p.donations||[]; bloodRequests = p.bloodRequests||[]; 
+            nextIdSequence = p.nextIdSequence||1; userAccounts = p.userAccounts||userAccounts;
+            systemSettings = p.systemSettings||systemSettings;
+            saveToLocalStorage(); loadDropdownOptions(); populateSettingsInputs(); displayMembers(); displayDonations(); displayBloodRequests(); displayUserAccounts(); alert("রিস্টোর সফল!");
         }; reader.readAsText(e.target.files[0]);
     }
 
@@ -1083,8 +1323,11 @@
         const idDisplay = document.getElementById('memberIdDisplay');
         if(idDisplay) idDisplay.value = generateMemberId(); 
         if(localStorage.getItem('adminTheme') === 'dark') { document.body.classList.add('dark-theme'); }
+        
+        loadDropdownOptions();
         checkCurrentSession();
     });
+    
     document.addEventListener('click', () => { document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show')); });
 </script>
 </body>
